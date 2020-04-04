@@ -1,4 +1,3 @@
-
 breed [people a-person] ;; specify agentset
 
 globals [
@@ -13,6 +12,8 @@ globals [
   act-hosp-people
   act-immune-people
   act-dead-people
+  act-sick-people
+  act-required-hosp
 ]
 
 turtles-own [
@@ -38,13 +39,15 @@ to setup
     set color blue
     set shape "person"
   ]
-  repeat count people * 4 [ ; avg-relationships-per-person [
+  repeat count people * avg-relationships-per-person [
     ask one-of people [
       create-link-with min-one-of other people with [not member? self [link-neighbors] of myself] [distance myself]
     ]
   ]
   set exp-interaction 0
+  setup-experiment
 end
+
 
 to setup-experiment
   reset-ticks
@@ -54,9 +57,11 @@ to setup-experiment
   set act-dead-people 0
   set act-infect-people 0 ;act-infect-people
   set act-hosp-people 0 ;act-hosp-people
-  set act-immune-people act-immune-people
-  if exp-interaction != 16 [ ;probability-of-interaction [
- ;   set pen-color 12 + (6 * probability-of-interaction) / 100
+  set act-immune-people 0 ;act-immune-people
+  set act-sick-people 0
+  set act-required-hosp 0
+  if exp-interaction != probability-of-interaction [
+ ;   set pen-color 12 + (6 * probability-of-interaction) / 100 ; change color if social distancing variable changes
   ]
   ask people [
     set infected? false
@@ -66,32 +71,33 @@ to setup-experiment
     set infected-on 0
     set dead? false
     set inactive? false
-    set color blue
+    set color green
   ]
 ;  set-current-plot "Infected"
 ;  create-temporary-plot-pen (word "Interaction: " probability-of-interaction)
 ;  set-plot-pen-color pen-color
 ;  plot-pen-down
-  set exp-interaction 16 ;probability-of-interaction
-  ask one-of people [
+  set exp-interaction probability-of-interaction
+  ask n-of init-affected people [
     set infected? true
-    set color 45
+    set color 25
     set infected-on ticks
   ]
 end
 
 to go
   if not any? turtles with [sick?] and not any? turtles with [infected?] [
-;    plot-pen-up
+    plotxy 1 0
+    plotxy 1 0
     plotxy 1 0
     stop
   ]
-  ask people with [(infected? or sick?) and not hospital?] [
+  ask people with [(infected? or sick?) and not hospital? and not dead?] [
     ; introduce sampling from dist here
-    ask my-links with [random 100 < 20 ] [ ;probability-of-interaction] [
-      if random 100 < 20 [ ; probability-of-infection [
+    ask my-links with [random 100 < probability-of-interaction] [
+      if random 100 < probability-of-infection [
         ask other-end [
-          if not infected? and not immune? and not sick? [
+          if not infected? and not immune? and not sick? and not dead? [
             set infected? true
             set infected-on ticks
             set color 45
@@ -100,9 +106,14 @@ to go
       ]
     ]
   ]
-  ask people with [(infected? or sick?) and hospital?] [
-    if random 100 < 1  [ ;probability-of-death [
+  ; sick people that require hospitalisation and are in hospital
+  ask people with [(sick?) and hospital?] [
+    if random 100 < probability-of-death [
       set dead? true
+      set sick? false
+      set hospital? false
+      set immune? true
+      set color black
     ]
   ]
 
@@ -110,41 +121,50 @@ to go
   let current-infection count people with [infected? or sick?] / number-of-people
 
   let cur-hospital-occupation count people with [hospital?]
-  let cur-require-hospitalization floor ((count people with [sick?] * 0.16 ) / 100 ) ; require-hospitalization-pcnt) / 100)
+  let cur-require-hospitalization floor ((count people with [sick?] * require-hospitalization-pcnt) / 100)
+  let cur-sick-people count people with [sick?] / number-of-people
 
   set max-sick-proportion max (list max-sick-proportion current-infection )
-  set act-infect-people current-infection / 100
-  set act-hosp-people cur-hospital-occupation / count people
-  set act-dead-people current-dead-relative
   set max-hospitalization max (list max-hospitalization cur-require-hospitalization )
   set max-hospital-occupation max (list max-hospital-occupation cur-hospital-occupation)
-  ; At the end of incubation period, person turns sick
-  ask people with [infected? and (ticks - infected-on) > 4 ] [ ;incubation-period] [
+
+  set act-infect-people current-infection
+  set act-hosp-people cur-hospital-occupation / count people
+  set act-dead-people current-dead-relative
+  set act-sick-people cur-sick-people
+  set act-required-hosp cur-require-hospitalization / number-of-people
+
+  ; At the end of incubation period, person turns sick with a probability
+  ask people with [infected? and (ticks - infected-on) > incubation-period] [
     set infected? false
     set sick? true
     set color red
   ]
   ; Recovery gives infinite immunity
-  ask people with [sick? and (ticks - infected-on) >  24 ] [ ;(recovery-time + incubation-period)] [
+  ask people with [(sick? and (ticks - infected-on) >  (recovery-time + incubation-period)) and not dead?] [
     set sick? false
     set immune? true
     set hospital? false
     set color gray
   ]
+
   let current-immune count people with [immune? ] / count people
   set act-immune-people current-immune
+
   ; Only some sick persons require hospitalization
+
   let cur-to-hospital 0
   if (cur-require-hospitalization - cur-hospital-occupation) > 0 [
-    set cur-to-hospital cur-require-hospitalization - cur-hospital-occupation
+    set cur-to-hospital (cur-require-hospitalization - cur-hospital-occupation)
   ]
   ask n-of cur-to-hospital people with [sick?] [
-    if cur-hospital-occupation < 44 [ ;hospital-beds [
+    if cur-hospital-occupation < hospital-beds [
       set hospital? true
       set color lime
       set cur-hospital-occupation cur-hospital-occupation + 1
     ]
   ]
+
 ;  plotxy ticks current-infection
   tick
 end
@@ -185,7 +205,7 @@ probability-of-interaction
 probability-of-interaction
 1
 100
-17.0
+30.0
 1
 1
 NIL
@@ -234,7 +254,7 @@ avg-relationships-per-person
 avg-relationships-per-person
 1
 30
-14.0
+5.0
 1
 1
 NIL
@@ -249,7 +269,7 @@ number-of-people
 number-of-people
 3
 1000
-160.0
+207.0
 1
 1
 NIL
@@ -271,10 +291,11 @@ true
 true
 "" ""
 PENS
-"infected" 1.0 0 -8330359 true "" "plot act-infect-people * 100"
-"hospital" 1.0 0 -2674135 true "" "plot act-hosp-people"
-"immune" 1.0 0 -7500403 true "" "plot act-immune-people"
+"infected" 1.0 0 -8330359 true "" "plot act-infect-people"
+"hospital" 1.0 0 -2674135 true "" "plot act-hosp-people * 1"
+"immune" 1.0 0 -7500403 true "" "plot act-immune-people * 1"
 "dead" 1.0 0 -16645118 true "" "plot act-dead-people"
+"requires_hospital" 1.0 0 -955883 true "" "plot act-required-hosp"
 
 TEXTBOX
 15
@@ -463,7 +484,7 @@ hospital-beds
 hospital-beds
 1
 200
-1.0
+4.0
 1
 1
 NIL
@@ -500,7 +521,7 @@ require-hospitalization-pcnt
 require-hospitalization-pcnt
 1
 100
-79.0
+20.0
 1
 1
 NIL
@@ -525,7 +546,7 @@ probability-of-death
 probability-of-death
 0
 20
-0.0
+1.0
 1
 1
 NIL
@@ -563,11 +584,7 @@ Set isolation slider to desired isolation level (how much one is trying to avoid
 
 ## THINGS TO NOTICE
 
-There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an 
-illustrative model WITHOUT ANY CLAIM TO CORRESPOND TO REALITY. The model aims merely
-to show how social distancing can help keeping the number of people infected (and 
-therefore presumably the number of occupied hospital beds) within the capacity
-of the healthcare system. 
+There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an illustrative model WITHOUT ANY CLAIM TO CORRESPOND TO REALITY. The model aims merely to show how social distancing can help keeping the number of people infected (and therefore presumably the number of occupied hospital beds) within the capacity of the healthcare system. 
 
 ## THINGS TO TRY
 (suggested things for the user to try to do (move sliders, switches, etc.) with the model)
