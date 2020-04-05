@@ -22,23 +22,34 @@ ui <- fluidPage(
   tags$head(HTML('<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')),
   fluidRow(
     column(1),
+    
+    
     column(8,
-           h2("Dein Covid-19 Footprint"),
+           h2("Act-Like-Me"),
+           HTML("Das öffentliche Leben in der Schweiz steht seit Wochen still. Du weisst zwar, dass die Lage ernst ist, doch langsam wirst du ungeduldig. Tragen deine persönlichen Einschränkungen wirklich zur Überwindung der Krise bei? Wir zeigen dir die direkten Auswirkungen deiner täglichen Entscheidungen auf. Wie würde sich die Corona-Krise entwickeln, wenn alle so handelten wie du?")
+           ,
            
            br(),
-           sliderInput("probability_of_contact", "Wie sehr hälst Du Dich an die Vorgaben des Bundes?:",
-                       min = 0, max = 100, value = 5,width = "50%"
+           br(),
+           br(),
+           
+           sliderInput("probability_of_contac3", "Anzahl private physische Kontakte der letzten 7 Tage:",
+                       min = 0, max = 20, value = 5,width = "50%"
            ),
-           sliderInput("probability_of_contact1", "Wie alt bist Du?:",
-                       min = 0, max = 110, value = 20,width = "50%"
+           sliderInput("probability_of_contact1", "Anzahl berufliche Kontakte der letzten 7 Tage:",
+                       min = 0, max = 40, value = 20,width = "50%"
            ),
-           sliderInput("probability_of_contact2", "Wie gesellig bist Du (100 = Sehr gesellig)",
-                       min = 0, max = 100, value = 70,width = "50%"
-           ),
-           sliderInput("probability_of_contact3", "Wie viel Outdoor-Sport treibst Du? (100 = Sehr viel)",
+           
+           
+           radioButtons("dist", "Wie viel Kontakt zu Risikogruppen hattest?",
+                        c("Keinen" = "norm",
+                          "Weniger als 3" = "unif",
+                          "Mehr als 3" = "lnorm")),
+           sliderInput("probability_of_contact", "Wie gut hälst Du Dich an BAG - Richtlinien?",
                        min = 0, max = 100, value = 50,width = "50%"
            ),
-           actionButton("start_sim", "Zeig mir meinen Footprint"),
+           
+           actionButton("start_sim", "Was hätte mein Verhalten für Auswirkungen?"),
            
            br(),
            br(),
