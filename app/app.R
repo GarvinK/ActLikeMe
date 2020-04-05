@@ -5,7 +5,7 @@ library(readr)
 library(stringr)
 library(magrittr)
 library(RNetLogo)
-
+library(ggplot2)
 datasets <- read_tsv(file.path("data", "datasets.tsv"))
 
 tweets <- read_tsv(file.path("data", "tweets.tsv")) %>%
@@ -22,60 +22,66 @@ ui <- fluidPage(
   tags$head(HTML('<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')),
   fluidRow(
     column(1),
-    column(4,
-           h2("..."),
-           HTML("Nicht nur das Virus ist ansteckend - sondern auch dein Verhalten!
-
-Vor drei Wochen hat der Bundesrat per Notrecht einschneidende Massnahmen für die gesamte Bevölkerung zur Bekämpfung der Coronavirus-Pandemie verordnet. Seither steht das öffentliche Leben in der Schweiz still und wir verbringen den Alltag mehrheitlich innerhalb unserer vier Wände. Doch langsam werden wir ungeduldig. Tragen die persönlichen Einschränkungen wirklich zur Überwindung der Krise bei? 
- 
- - Andere nehmen es ja auch nicht so genau...
-- Warum soll ich zuhause bleiben, wenn andere noch arbeiten gehen?-
- 
-In der vorliegenden Simulation wird dir mithilfe von XXX aufgezeigt, wie sich die Corona-Krise in der Schweiz entwickeln würde, wenn sich alle so verhielten wie du."),
-                      br(),
+    column(8,
+           h2("Dein Covid-19 Footprint"),
+           
+           br(),
+           sliderInput("probability_of_contact", "Wie sehr hälst Du Dich an die Vorgaben des Bundes?:",
+                       min = 0, max = 100, value = 5,width = "50%"
+           ),
+           sliderInput("probability_of_contact1", "Wie alt bist Du?:",
+                       min = 0, max = 110, value = 20,width = "50%"
+           ),
+           sliderInput("probability_of_contact2", "Wie gesellig bist Du (100 = Sehr gesellig)",
+                       min = 0, max = 100, value = 70,width = "50%"
+           ),
+           sliderInput("probability_of_contact3", "Wie viel Outdoor-Sport treibst Du? (100 = Sehr viel)",
+                       min = 0, max = 100, value = 50,width = "50%"
+           ),
+           actionButton("start_sim", "Zeig mir meinen Footprint"),
+           
+           br(),
            br(),
            br(),
            br(),
            tabsetPanel(id = "selected_tab", type = "tabs", selected = "simulator",
-                       tabPanel("About You", value = "simulator",
+                       tabPanel("Infektionsraten", value = "simulator",
                                 br(),
-                                sliderInput("avg_relationships_per_person", "Wie gross ist Dein Bekanntenkreis?:",
-                                            min = 0, max = 30, value = 5
-                                ),
-                                actionButton("start_sim", "Zeig mir mein Footprint")
-                       ),
-                       
-                       tabPanel("Filter by Dataset", value = "dataset",
-                                br(),
-                                selectInput('dataset_name', 'Choose a dataset', rev(datasets$dataset_name), 
-                                            selected = rev(datasets$dataset_name)[1]),
-                                selectInput('dataset_sort_by', 'Sort tweets', c("Most recent", "Most likes", "Most retweets"), 
-                                            selected = base::sample(c("Most recent", "Most likes", "Most retweets"), 1)),
                                 
                        ),
-                       tabPanel("Filter by User", value = "user",
+                       
+                       tabPanel("Auswirkungen auf das Gesundheitsystem", value = "dataset",
+                                br(),
+                                
+                                
+                                
+                                
+                       ),
+                       tabPanel("Parameter Massnahmen Bund", value = "user",
                                 br(),
                                 selectizeInput("user_name", "Choose a user", users, selected = sample(users, 1)),
                                 selectInput('user_sort_by', 'Sort tweets', c("Most recent", "Most likes", "Most retweets"), 
-                                            selected = "Most recent"))
+                                            selected = "Most recent"),
+                                selectInput('dataset_name', 'Choose a dataset', rev(datasets$dataset_name), 
+                                            selected = rev(datasets$dataset_name)[1]),
+                                selectInput('dataset_sort_by', 'Sort tweets', c("Most recent", "Most likes", "Most retweets"), 
+                                            selected = base::sample(c("Most recent", "Most likes", "Most retweets"), 1))
+                       )
            )
-    ),
-    column(6,
-           
+           # ),
+           #column(6,
+           ,
            conditionalPanel(
              condition = "input.selected_tab == 'simulator'",
-             h2("Dein Covid-19 Footprint"),
-             p(uiOutput('dataset_links')), 
+             h2("So würde der Pandemie-Verlauf aussehen, wenn alle so handeln würden wie Du:"),
              #h3(textOutput('dataset_tweets_sorted_by')),
              plotOutput('act_immune_people')
              
            ),
            conditionalPanel(
-             condition = "input.selected_tab == 'user'",
-             h2(textOutput('user_name')),
-             p(uiOutput('user_links')), 
-             h3(textOutput('user_tweets_sorted_by')),
-             uiOutput('embedded_user_tweets')
+             condition = "input.selected_tab == 'dataset'",
+             h2("So würde das Gesundheitssystem aussehen, wenn alle so handeln würden wie Du:"),
+             plotOutput('hospital')
            )
     ),
     column(1)
@@ -98,6 +104,7 @@ make_links <- function(urls, text, icon = NULL) {
 }
 
 server <- function(input, output, session) {
+  
   v <- reactiveValues(data = NULL)
   chosen_dataset <- reactive({
     datasets %>%
@@ -122,25 +129,48 @@ server <- function(input, output, session) {
   nl.path <- "/home/garvin_kruthof/test/NetLogo 6.0.4/app"
   nl.jarname <- "netlogo-6.0.4.jar"
   NLStart(nl.path, nl.jarname=nl.jarname,gui=FALSE)
-  model.path <- "/home/garvin_kruthof/Covid19/model/fixed_number_prototype.nlogo"
+  model.path <- "/home/garvin_kruthof/Covid19/model/prototype_simple.nlogo"
   NLLoadModel(model.path)
   
   observeEvent(input$start_sim, {
-    NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
+    NLCommand(paste('set probability-of-contact ',toString(100-input$probability_of_contact),sep=""))
     
     NLCommand("setup")
     #NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
     
     NLCommand("setup-experiment")
-    NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
+    #NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
     
     #v <- NLDoReport(10, "go", "act-immune-people")
-    v <- NLDoReport(100, "go", c("act-immune-people","act-dead-people"),
-                    as.data.frame=TRUE, df.col.names=c("act_immune_people","act_dead_people"))
+    v <- NLDoReport(100, "go", c("act-immune-people","act-dead-people","act-infect-people","act-hosp-people","act-required-hosp"),
+                    as.data.frame=TRUE, df.col.names=c("act_immune_people","act_dead_people","act_infect_people","act_hosp_people","act_required_hosp "))
     
     output$act_immune_people <- renderPlot({
       #if (is.null(v$data)) return()
-      plot(v$act_immune_people)
+      #plot(v$act_immune_people)
+      ggplot(v, aes(x=seq(1:100))) + 
+        coord_cartesian(xlim = c(0, 100), ylim = c(0, 1))+
+        geom_line(aes(y=v$act_immune_people, col="Immunität in der Bevölkerung"),lwd=2.5)+ 
+        geom_line(aes(y=v$act_infect_people, col="Infektionen"),lwd=2.5)+
+        geom_line(aes(y=v$act_dead_people, col="Todesfälle"),lwd=2.5)+
+        
+        labs(y = "Anzahl der Bevölkerung in Prozent")+
+        labs(x = "Tage seit Ausbruch")+
+        theme_minimal()
+      
+    })
+    
+    output$hospital <- renderPlot({
+      #if (is.null(v$data)) return()
+      #plot(v$act_immune_people)
+      ggplot(v, aes(x=seq(1:100))) + 
+        coord_cartesian(xlim = c(0, 100), ylim = c(0, 0.07))+
+        geom_line(aes(y=v$act_hosp_people, col="Anzahl Menschen die Platz in einem Krankenhaus haben"),lwd=2.5)+
+        geom_line(aes(y=v$act_required_hosp, col="Anzahl Menschen die ins Krankenhaus müssen"),lwd=2.5)+
+        theme_minimal()+
+        labs(y = "Anzahl der Bevölkerung in Prozent")+
+        labs(x = "Tage seit Ausbruch")
+      
     })
     
   })
