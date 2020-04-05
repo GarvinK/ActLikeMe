@@ -48,15 +48,11 @@ ui = shiny::htmlTemplate(
   expensive_trip = textOutput(
     "most_expensive_trip_text",
     inline = T
-  ),
-  
-  # City Selector
+  ),# City Selector
   city_selector = selectInput(
     "city", 
     label = "Select City", 
-    choices = d_clean$city %>% 
-      unique(),
-    selected = "Auckland"
+    choices =  "Auckland"
   ),
   
   
@@ -66,9 +62,8 @@ ui = shiny::htmlTemplate(
     sliderInput(
       "time", 
       "Date",
-      min(d_routes$request_time) %>% as.Date(), 
-      max(d_routes$request_time) %>% as.Date(),
-      value = max(d_routes$request_time) %>% as.Date(),
+      min=0, max=11,
+      value = 4,
       step = 30,
       animate = animationOptions(
         playButton = HTML("<img src='images/icons/play-button.png' height='20' width='20'>"), 

@@ -1,9 +1,3 @@
-###############################################################################
-# Defining Server Logic behind App to explore UBER data
-#
-# Author: Vivek Katial
-# Created 2019-01-30 20:32:44
-###############################################################################
 
 server <- function(input, output) {
   
@@ -89,14 +83,14 @@ server <- function(input, output) {
       pull(usd_spent)
   })
   
-
   
   
   
-
-
+  
+  
+  
   # Create Map Plot ---------------------------------------------------------
-
+  
   
   points_full <- reactive({
     # Clean trip data
@@ -181,5 +175,5 @@ server <- function(input, output) {
       )
   })
   
-
+  
 }
