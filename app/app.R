@@ -24,7 +24,14 @@ ui <- fluidPage(
     column(1),
     column(4,
            h2("tidytuesday.rocks"),
-           HTML("Test"),
+           HTML("Nicht nur das Virus ist ansteckend - sondern auch dein Verhalten!
+
+Vor drei Wochen hat der Bundesrat per Notrecht einschneidende Massnahmen für die gesamte Bevölkerung zur Bekämpfung der Coronavirus-Pandemie verordnet. Seither steht das öffentliche Leben in der Schweiz still und wir verbringen den Alltag mehrheitlich innerhalb unserer vier Wände. Doch langsam werden wir ungeduldig. Tragen die persönlichen Einschränkungen wirklich zur Überwindung der Krise bei? 
+ 
+ - Andere nehmen es ja auch nicht so genau...
+- Warum soll ich zuhause bleiben, wenn andere noch arbeiten gehen?-
+ 
+In der vorliegenden Simulation wird dir mithilfe von XXX aufgezeigt, wie sich die Corona-Krise in der Schweiz entwickeln würde, wenn sich alle so verhielten wie du."),
                       br(),
            tabsetPanel(id = "selected_tab", type = "tabs", selected = "simulator",
                        tabPanel("About You", value = "simulator",
