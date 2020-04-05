@@ -2,11 +2,11 @@ breed [people a-person] ;; specify agentset
 
 globals [
   exp-risk
-  exp-interaction
 
   max-sick-proportion
   max-hospitalization
   max-hospital-occupation
+  max-healthcare-ratio
 
   act-infect-people
   act-hosp-people
@@ -23,46 +23,49 @@ turtles-own [
   hospital?
   immune?
   dead?
-  inactive?
+  highrisk?
 ]
 
 
 to setup
   clear-all
+                                        ;; Setup of population, all people start as healthy and outside of the hospital
   create-people number-of-people [
     setxy random-xcor random-ycor
     set infected? false
     set sick? false
     set immune? false
     set dead? false
-    set inactive? false
-    set color blue
+    set highrisk? false
+    set hospital? false
     set shape "person"
   ]
+                                        ;; Setup of network, people are connected with the specified number of people and "clustered" together
   repeat count people * avg-relationships-per-person [
     ask one-of people [
       create-link-with min-one-of other people with [not member? self [link-neighbors] of myself] [distance myself]
     ]
   ]
-  set exp-interaction 0
+
   setup-experiment
 end
 
 
 to setup-experiment
+                                        ;; Reset all ticks and set all counters to zero
   reset-ticks
   set max-sick-proportion 0
   set max-hospitalization 0
   set max-hospital-occupation 0
+  set max-healthcare-ratio 0
+
   set act-dead-people 0
-  set act-infect-people 0 ;act-infect-people
-  set act-hosp-people 0 ;act-hosp-people
-  set act-immune-people 0 ;act-immune-people
+  set act-infect-people 0
+  set act-hosp-people 0
+  set act-immune-people 0
   set act-sick-people 0
   set act-required-hosp 0
-  if exp-interaction != probability-of-interaction [
- ;   set pen-color 12 + (6 * probability-of-interaction) / 100 ; change color if social distancing variable changes
-  ]
+
   ask people [
     set infected? false
     set immune? false
@@ -70,14 +73,10 @@ to setup-experiment
     set hospital? false
     set infected-on 0
     set dead? false
-    set inactive? false
+    set highrisk? false
     set color green
   ]
-;  set-current-plot "Infected"
-;  create-temporary-plot-pen (word "Interaction: " probability-of-interaction)
-;  set-plot-pen-color pen-color
-;  plot-pen-down
-  set exp-interaction probability-of-interaction
+
   ask n-of init-affected people [
     set infected? true
     set color 25
@@ -86,14 +85,12 @@ to setup-experiment
 end
 
 to go
+                                        ;; Finish simulation once no more people are affected
   if not any? turtles with [sick?] and not any? turtles with [infected?] [
-    plotxy 1 0
-    plotxy 1 0
-    plotxy 1 0
     stop
   ]
   ask people with [(infected? or sick?) and not hospital? and not dead?] [
-    ; introduce sampling from dist here
+                                        ;; introduce sampling from distribution here
     ask my-links with [random 100 < probability-of-interaction] [
       if random 100 < probability-of-infection [
         ask other-end [
@@ -106,12 +103,24 @@ to go
       ]
     ]
   ]
-  ; sick people that require hospitalisation and are in hospital
+
+                                        ;; sick people that require hospitalisation and are in hospital
+                                        ;; have a given probability to die
   ask people with [(sick?) and hospital?] [
     if random 100 < probability-of-death [
       set dead? true
       set sick? false
       set hospital? false
+      set immune? true
+      set color black
+    ]
+  ]
+                                        ;; sick people that require hospitalization but are not in
+                                        ;; a hospital have a higher chance to die
+  ask people with [ sick? and highrisk? ] [
+    if random 100 < (probability-of-death * death-outside-hosp-factor) [
+      set dead? true
+      set sick? false
       set immune? true
       set color black
     ]
@@ -122,11 +131,13 @@ to go
 
   let cur-hospital-occupation count people with [hospital?]
   let cur-require-hospitalization floor ((count people with [sick?] * require-hospitalization-pcnt) / 100)
+  let cur-healthcare-ratio cur-require-hospitalization / hospital-beds
   let cur-sick-people count people with [sick?] / number-of-people
 
   set max-sick-proportion max (list max-sick-proportion current-infection )
   set max-hospitalization max (list max-hospitalization cur-require-hospitalization )
   set max-hospital-occupation max (list max-hospital-occupation cur-hospital-occupation)
+  set max-healthcare-ratio max ( list max-healthcare-ratio cur-healthcare-ratio )
 
   set act-infect-people current-infection
   set act-hosp-people cur-hospital-occupation / count people
@@ -151,21 +162,26 @@ to go
   let current-immune count people with [immune? ] / count people
   set act-immune-people current-immune
 
-  ; Only some sick persons require hospitalization
+                                        ;; A percentage of users require hospitalization but once the system is overloaded
+                                        ;; they will not be admitted to the hospital, and will get the badge "highrisk"
+                                        ;; which in turn will affect their chance of survival
 
   let cur-to-hospital 0
   if (cur-require-hospitalization - cur-hospital-occupation) > 0 [
     set cur-to-hospital (cur-require-hospitalization - cur-hospital-occupation)
   ]
   ask n-of cur-to-hospital people with [sick?] [
-    if cur-hospital-occupation < hospital-beds [
+    ifelse cur-hospital-occupation < hospital-beds [
       set hospital? true
       set color lime
       set cur-hospital-occupation cur-hospital-occupation + 1
+    ] [
+      set hospital? false
+      set highrisk? true
+      set color 45
     ]
   ]
 
-;  plotxy ticks current-infection
   tick
 end
 @#$#@#$#@
@@ -205,7 +221,7 @@ probability-of-interaction
 probability-of-interaction
 1
 100
-30.0
+40.0
 1
 1
 NIL
@@ -269,7 +285,7 @@ number-of-people
 number-of-people
 3
 1000
-207.0
+497.0
 1
 1
 NIL
@@ -277,9 +293,9 @@ HORIZONTAL
 
 PLOT
 15
-465
+510
 595
-650
+695
 Infected
 NIL
 NIL
@@ -373,7 +389,7 @@ probability-of-infection
 probability-of-infection
 1
 100
-18.0
+15.0
 1
 1
 NIL
@@ -388,7 +404,7 @@ incubation-period
 incubation-period
 1
 20
-1.0
+7.0
 1
 1
 NIL
@@ -403,7 +419,7 @@ recovery-time
 recovery-time
 5
 100
-67.0
+10.0
 1
 1
 NIL
@@ -484,7 +500,7 @@ hospital-beds
 hospital-beds
 1
 200
-4.0
+6.0
 1
 1
 NIL
@@ -496,7 +512,7 @@ MONITOR
 595
 425
 Max hosp. occu. %
-(max-hospital-occupation * 100) / hospital-beds
+max-healthcare-ratio * 100
 2
 1
 11
@@ -521,7 +537,7 @@ require-hospitalization-pcnt
 require-hospitalization-pcnt
 1
 100
-20.0
+10.0
 1
 1
 NIL
@@ -561,6 +577,21 @@ init-affected
 init-affected
 1 2 3
 2
+
+SLIDER
+364
+467
+604
+500
+death-outside-hosp-factor
+death-outside-hosp-factor
+0
+20
+5.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -603,7 +634,7 @@ There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an illus
 
 ## CREDITS AND REFERENCES
 
-We borrowed heavily from https://www.gisnet.lv/~marisn
+We borrowed heavily from https://www.gisnet.lv/~marisn, unfortunately they did not provide contact details nor a licence. 
 @#$#@#$#@
 default
 true
