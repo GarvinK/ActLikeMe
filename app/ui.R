@@ -1,4 +1,4 @@
-fluidPage(
+ui <- fluidPage(
   tags$head(HTML('<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">')),
   tags$head(HTML('<style>* {font-size: 100%; font-family: Roboto Mono;}</style>')),
   tags$head(HTML('<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>')),
