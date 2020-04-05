@@ -1,4 +1,4 @@
-breed [people a-person] ;; specify agentset
+breed [people a-person]                 ;; specify agentset to apply to all agents
 
 globals [
   exp-risk
@@ -14,6 +14,18 @@ globals [
   act-dead-people
   act-sick-people
   act-required-hosp
+
+  ; Settings for prototype
+  number-of-people
+  avg-relationships-per-person
+  probability-of-infection
+  recovery-time
+  incubation-period
+  require-hospitalization-pcnt
+  hospital-beds
+  probability-of-death
+  death-outside-hosp-factor
+  init-affected
 ]
 
 turtles-own [
@@ -29,6 +41,16 @@ turtles-own [
 
 to setup
   clear-all
+  set number-of-people 497
+  set avg-relationships-per-person 5
+  set probability-of-infection 15
+  set recovery-time 10
+  set incubation-period 7
+  set require-hospitalization-pcnt 10
+  set hospital-beds 6
+  set probability-of-death 1
+  set death-outside-hosp-factor 5
+  set init-affected 3
                                         ;; Setup of population, all people start as healthy and outside of the hospital
   create-people number-of-people [
     setxy random-xcor random-ycor
@@ -65,8 +87,8 @@ to setup-experiment
   set act-immune-people 0
   set act-sick-people 0
   set act-required-hosp 0
-
-  ask people [
+                                        ;; Setup people, they all start healthy except for the
+  ask people [                                      ;; initia
     set infected? false
     set immune? false
     set sick? false
@@ -91,7 +113,7 @@ to go
   ]
   ask people with [(infected? or sick?) and not hospital? and not dead?] [
                                         ;; introduce sampling from distribution here
-    ask my-links with [random 100 < probability-of-interaction] [
+    ask my-links with [random 100 < probability-of-contact ] [
       if random 100 < probability-of-infection [
         ask other-end [
           if not infected? and not immune? and not sick? and not dead? [
@@ -186,13 +208,13 @@ to go
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-605
-130
-1123
-649
+560
+15
+1145
+601
 -1
 -1
-15.455
+17.5
 1
 10
 1
@@ -213,26 +235,26 @@ ticks
 30.0
 
 SLIDER
-15
-335
-220
-368
-probability-of-interaction
-probability-of-interaction
+217
+29
+422
+62
+probability-of-contact
+probability-of-contact
 1
-100
-40.0
+40
+12.0
 1
 1
 NIL
 HORIZONTAL
 
 BUTTON
-15
-170
-220
-203
-Set up new Network
+4
+29
+209
+62
+Setup
 setup
 NIL
 1
@@ -245,11 +267,11 @@ NIL
 1
 
 BUTTON
-15
-415
-220
-448
-Run Simulation
+3
+106
+208
+139
+Run the simulation
 go
 T
 1
@@ -261,41 +283,11 @@ NIL
 NIL
 0
 
-SLIDER
-240
-170
-465
-203
-avg-relationships-per-person
-avg-relationships-per-person
-1
-30
-5.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-240
-130
-465
-163
-number-of-people
-number-of-people
-3
-1000
-497.0
-1
-1
-NIL
-HORIZONTAL
-
 PLOT
-15
-510
-595
-695
+4
+240
+546
+560
 Infected
 NIL
 NIL
@@ -309,26 +301,16 @@ true
 PENS
 "infected" 1.0 0 -8330359 true "" "plot act-infect-people"
 "hospital" 1.0 0 -2674135 true "" "plot act-hosp-people * 1"
-"immune" 1.0 0 -7500403 true "" "plot act-immune-people * 1"
+"immune" 1.0 0 -7500403 true "" "plot act-immune-people"
 "dead" 1.0 0 -16645118 true "" "plot act-dead-people"
 "requires_hospital" 1.0 0 -955883 true "" "plot act-required-hosp"
 
-TEXTBOX
-15
-120
-45
-175
-1.
-40
-0.0
-1
-
 BUTTON
-15
-375
-220
-408
-Set up new Simulation
+3
+68
+208
+101
+Setup new run
 setup-experiment
 NIL
 1
@@ -340,129 +322,22 @@ NIL
 NIL
 1
 
-TEXTBOX
-50
-145
-200
-163
-Setup your network here.
-11
-0.0
+MONITOR
+476
+186
+562
+231
+Days from t0
+ticks
+17
 1
+11
 
-TEXTBOX
-10
-225
-35
-271
+MONITOR
 2
-40
-0.0
-1
-
-TEXTBOX
-45
-230
-220
-341
-You can run as many experiments as you want, and compare the results of reducing or increasing interactions between people, keeping everything else constant.
-11
-0.0
-1
-
-TEXTBOX
-10
-10
-1110
-125
-    The purpose of this model is to show the effect of social isolation on the number of people infected at the same time. Like all models, it makes some assumptions: People have some number of social connections (friends, colleagues, etc.), and each day there is a probability that people will interact with people that they know. If someone is infected, there is a 15% chance that they will transmit their disease (\"probability of infection\" slider). Once they are infected (yellow colour), for 14 days (\"incubation period\" slider) they can infect others. After incubation period they get sick (red) and they remain contagious for 14 days (\"recovery time\" slider) after which they become immune (gray). 20% of sick persons (red) are assumed to need hospitalization. Hospitalized (green) persons are considered to be 100% isolated and do not infect others.\n    The risk of transmission and duration of illness are fictional, and do not reflect any characteristics of COVID-19. The purpose of this model is simply to show the impact on the height of the \"curve\" that social isolation can have.
-12
-0.0
-1
-
-SLIDER
-240
-230
-465
-263
-probability-of-infection
-probability-of-infection
-1
-100
-15.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-240
-310
-465
-343
-incubation-period
-incubation-period
-1
-20
-7.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-240
-270
-465
-303
-recovery-time
-recovery-time
-5
-100
-10.0
-1
-1
-NIL
-HORIZONTAL
-
-MONITOR
-480
-130
-535
-175
-Infected
-count turtles with [infected?]
-17
-1
-11
-
-MONITOR
-540
-130
-595
-175
-Sick
-count turtles with [sick?]
-17
-1
-11
-
-MONITOR
-480
-180
-535
-225
-Immune
-count turtles with [immune?]
-17
-1
-11
-
-MONITOR
-480
-230
-595
-275
+190
+117
+235
 Max sick %
 max-sick-proportion * 100
 0
@@ -470,47 +345,21 @@ max-sick-proportion * 100
 11
 
 MONITOR
-480
-280
-595
-325
-Max req. hosp.
-max-hospitalization
-0
+368
+189
+473
+234
+Healthy pop.  %
+count turtles with [not sick? and not infected? and not immune?] / number-of-people
+2
 1
 11
 
 MONITOR
-540
-180
-595
-225
-Lucky
-count turtles with [not sick? and not infected? and not immune?]
-17
-1
-11
-
-SLIDER
-240
-390
-465
-423
-hospital-beds
-hospital-beds
-1
-200
-6.0
-1
-1
-NIL
-HORIZONTAL
-
-MONITOR
-480
-380
-595
-425
+121
+191
+236
+236
 Max hosp. occu. %
 max-healthcare-ratio * 100
 2
@@ -518,123 +367,51 @@ max-healthcare-ratio * 100
 11
 
 MONITOR
-480
-330
-595
-375
-In hospital
-count people with [hospital?]
-17
+243
+190
+359
+235
+Immune/Dead % 
+act-immune-people * 100
+2
 1
 11
-
-SLIDER
-240
-350
-465
-383
-require-hospitalization-pcnt
-require-hospitalization-pcnt
-1
-100
-10.0
-1
-1
-NIL
-HORIZONTAL
-
-TEXTBOX
-240
-430
-480
-460
-Maximum number of beds per 1000 people is 13 (Japan). UK has only 2.5
-12
-0.0
-1
-
-SLIDER
-468
-430
-602
-463
-probability-of-death
-probability-of-death
-0
-20
-1.0
-1
-1
-NIL
-HORIZONTAL
-
-CHOOSER
-15
-450
-163
-495
-init-affected
-init-affected
-1 2 3
-2
-
-SLIDER
-364
-467
-604
-500
-death-outside-hosp-factor
-death-outside-hosp-factor
-0
-20
-5.0
-1
-1
-NIL
-HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-
-
-
-Is isolation a good approach to limit COVID-19 impact on society?
+Simulation to see how social distancing affects the spread of the famous curve.
+Contains a fatality rate caluclator that takes into account how a overwhelmed healthcare system cannot treat every patient optimally and therefore increases the fatality rate.
 
 ## HOW IT WORKS
 
-
-
-Every day (tick) agents randomly interact with their peers and thus (randomly) might get infected. Probability of interaction and getting infected in the case of interaction can be changed to model different social/viral behaviour.
+The agents are arranged in a network with five connections to the closest neighbours. Initially the agents are distributed randomly, given the connection logic, this will result in a local clustering (which seems at least somewhat more realistic than to have all agents distributed randomly). The agents then interact with a probability dependent on the input of "probability-of-contact" which simulates how well someone adhers to the social distancing guidelines (lower is better adherence). The model still contains many random parts which are sampled from a uniform, which is NOT how reality works. The model still illustrates how social distancing can help mititgate the effects of a virus. 
 
 ## HOW TO USE IT
 
-Set up number of persons in your model and number of links between them and click on "Set up new Network" button.
-
-Set isolation slider to desired isolation level (how much one is trying to avoid contact with others) and click "Set up new Simulation" button. Once it is done, one sick person will be placed among healthy ones. Click "Run Simulation" and observe how everyone gets sick. After simulation completes, change isolation level, click again on "Set up new Simulation" followed by "Run".
+Set the probability-of-contact variable. The best values are:
+* 6 for a (unrealistic) total lockdown where EVERYONE only ever leaves the house for groceries
+* 12 for a optimal social distancing scenario
+* 24 for a scenario where many people still travel around in their free time
+* 40 for a buiness as usual scenario
 
 ## THINGS TO NOTICE
 
 There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an illustrative model WITHOUT ANY CLAIM TO CORRESPOND TO REALITY. The model aims merely to show how social distancing can help keeping the number of people infected (and therefore presumably the number of occupied hospital beds) within the capacity of the healthcare system. 
 
-## THINGS TO TRY
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+## THINGS TO TRY / EXTENDING THE MODEL
 
-## EXTENDING THE MODEL
-
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
-
-## NETLOGO FEATURES
-
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+Get some more accurate realistic parameters. MonteCarlo the model many times to get mean or median estimates of the curves instead of curves apt for visualization. 
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Interesting would be an extension such as the basic models from the library. Specifically:
+* Virus in a Network
+* HIV (which takes into account "closed-off" spaces for some time
 
 ## CREDITS AND REFERENCES
 
-We borrowed heavily from https://www.gisnet.lv/~marisn, unfortunately they did not provide contact details nor a licence. 
+We borrowed heavily from https://www.gisnet.lv/~marisn. 
 @#$#@#$#@
 default
 true
