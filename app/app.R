@@ -24,26 +24,16 @@ ui <- fluidPage(
     column(1),
     column(4,
            h2("tidytuesday.rocks"),
-           HTML(paste("<p><a href='https://github.com/rfordatascience/tidytuesday'>Tidy Tuesday</a>",
-                      "is a weekly social data project in <a href='https://www.r-project.org/'>R</a>.",
-                      "Every week <a href='https://twitter.com/thomas_mock'>@thomas_mock</a> and",
-                      "<a href='https://twitter.com/R4DSCommunity'>@R4DSCommunity</a> post a new dataset",
-                      "and ask R users to explore it and share their findings on Twitter with",
-                      "<a href='https://twitter.com/search?src=typd&q=%23tidytuesday'>#TidyTuesday</a>.</p>")),
-           HTML(paste("<p>Since the first dataset was posted on April 2nd, 2018, there are now",
-                      "84 datasets and 3,069 #TidyTuesday tweets from 700 users! Use the options",
-                      "below to filter the tweets by dataset or Twitter user and sort them by date, likes, and retweets.</p>")),
-           HTML(paste("<p>tidytuesday.rocks is about 150 lines of R code and relies on your #TidyTuesday",
-                      "tweets, which I scrape and manually label every few weeks. ",
-                      "It is built with <a href='https://shiny.rstudio.com/'>Shiny</a> and <a href='https://rtweet.info/'>rtweet</a>",
-                      "and its source code is <a href='https://github.com/nsgrantham/tidytuesdayrocks'>on GitHub</a>.</p>")),
-           HTML(paste("<p>The response to tidytuesday.rocks has been amazing! It was even awarded ", 
-                      "<a href='https://blog.rstudio.com/2019/04/05/first-shiny-contest-winners/'>a runner up spot in the 1st Shiny Contest</a>",
-                      "among 136 submissions. \U0001F57A</p>")),
-           HTML("<p>I'd love to hear your feedback, say hi <a href='https://twitter.com/nsgrantham'>@nsgrantham</a>.</p>"),
-           p("Happy plotting!"),
-           HTML("<p>(P.S. you may need to disable the DuckDuckGo Privacy Essentials browser extension for this website because it appears to block the JavaScript that embeds the tweets. If anybody knows a fix to this, please <a href='https://github.com/nsgrantham/tidytuesdayrocks/issues'>open an issue</a>!)</p>"),
-           br(),
+           HTML(paste("Nicht nur das Virus ist ansteckend - sondern auch dein Verhalten!
+
+                      Vor drei Wochen hat der Bundesrat per Notrecht einschneidende Massnahmen für die gesamte Bevölkerung zur Bekämpfung der Coronavirus-Pandemie verordnet. Seither steht das öffentliche Leben in der Schweiz still und wir verbringen den Alltag mehrheitlich innerhalb unserer vier Wände. Doch langsam werden wir ungeduldig. Tragen die persönlichen Einschränkungen wirklich zur Überwindung der Krise bei? 
+                      
+                      “Andere nehmen es ja auch nicht so genau...”
+                      “Warum soll ich zuhause bleiben, wenn andere noch arbeiten gehen?”
+                      
+                      In der vorliegenden Simulation wird dir mithilfe von XXX aufgezeigt, wie sich die Corona-Krise in der Schweiz entwickeln würde, wenn sich alle so verhielten wie du."),
+      
+             br(),
            tabsetPanel(id = "selected_tab", type = "tabs", selected = "simulator",
                        tabPanel("About You", value = "simulator",
                                 br(),
