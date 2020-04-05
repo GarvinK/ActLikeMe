@@ -4,6 +4,7 @@ library(purrr)
 library(readr)
 library(stringr)
 library(magrittr)
+library(RNetLogo)
 
 datasets <- read_tsv(file.path("data", "datasets.tsv"))
 
@@ -43,26 +44,39 @@ ui <- fluidPage(
       p("Happy plotting!"),
       HTML("<p>(P.S. you may need to disable the DuckDuckGo Privacy Essentials browser extension for this website because it appears to block the JavaScript that embeds the tweets. If anybody knows a fix to this, please <a href='https://github.com/nsgrantham/tidytuesdayrocks/issues'>open an issue</a>!)</p>"),
       br(),
-      tabsetPanel(id = "selected_tab", type = "tabs", selected = "dataset",
+      tabsetPanel(id = "selected_tab", type = "tabs", selected = "simulator",
+          tabPanel("About You", value = "simulator",
+                           br(),
+                   sliderInput("avg_relationships_per_person", "Wie gross ist Dein Bekanntenkreis?:",
+                               min = 0, max = 30, value = 5
+                   ),
+                   actionButton("start_sim", "Zeig mir mein Footprint")
+                   ),
+          
           tabPanel("Filter by Dataset", value = "dataset",
             br(),
             selectInput('dataset_name', 'Choose a dataset', rev(datasets$dataset_name), 
                         selected = rev(datasets$dataset_name)[1]),
             selectInput('dataset_sort_by', 'Sort tweets', c("Most recent", "Most likes", "Most retweets"), 
-                        selected = base::sample(c("Most recent", "Most likes", "Most retweets"), 1))),
+                        selected = base::sample(c("Most recent", "Most likes", "Most retweets"), 1)),
+   
+            ),
           tabPanel("Filter by User", value = "user",
             br(),
             selectizeInput("user_name", "Choose a user", users, selected = sample(users, 1)),
             selectInput('user_sort_by', 'Sort tweets', c("Most recent", "Most likes", "Most retweets"), 
-                        selected = "Most recent")))
+                        selected = "Most recent"))
+          )
     ),
     column(6,
+
       conditionalPanel(
-        condition = "input.selected_tab == 'dataset'",
-        h2(textOutput('dataset_name')),
+        condition = "input.selected_tab == 'simulator'",
+        h2("Dein Covid-19 Footprint"),
         p(uiOutput('dataset_links')), 
-        h3(textOutput('dataset_tweets_sorted_by')),
-        uiOutput('embedded_dataset_tweets')
+        #h3(textOutput('dataset_tweets_sorted_by')),
+        plotOutput('act_immune_people')
+        
       ),
       conditionalPanel(
         condition = "input.selected_tab == 'user'",
@@ -92,7 +106,7 @@ make_links <- function(urls, text, icon = NULL) {
 }
 
 server <- function(input, output, session) {
-  
+  v <- reactiveValues(data = NULL)
   chosen_dataset <- reactive({
     datasets %>%
       filter(dataset_name == input$dataset_name) %>%
@@ -112,6 +126,35 @@ server <- function(input, output, session) {
            "Most likes"    = dataset_tweets() %>% arrange(desc(favorite_count)),
            "Most retweets" = dataset_tweets() %>% arrange(desc(retweet_count)))
   })
+  
+  nl.path <- "/home/garvin_kruthof/test/NetLogo 6.0.4/app"
+  nl.jarname <- "netlogo-6.0.4.jar"
+  NLStart(nl.path, nl.jarname=nl.jarname,gui=FALSE)
+  model.path <- "/home/garvin_kruthof/Covid19/model/fixed_number_prototype.nlogo"
+  NLLoadModel(model.path)
+  
+  observeEvent(input$start_sim, {
+    NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
+    
+    NLCommand("setup")
+    #NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
+
+    NLCommand("setup-experiment")
+    NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
+    
+    #v <- NLDoReport(10, "go", "act-immune-people")
+    v <- NLDoReport(100, "go", c("act-immune-people","act-dead-people"),
+                               as.data.frame=TRUE, df.col.names=c("act_immune_people","act_dead_people"))
+    
+    output$act_immune_people <- renderPlot({
+      #if (is.null(v$data)) return()
+      plot(v$act_immune_people)
+    })
+    
+  })
+  
+  
+  
   
   output$dataset_tweets_sorted_by <- reactive({paste("Tweets sorted by", tolower(input$dataset_sort_by))})
   
