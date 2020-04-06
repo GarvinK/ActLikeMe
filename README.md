@@ -25,8 +25,3 @@ There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an illus
 
 Get some more accurate realistic parameters. MonteCarlo the model many times to get mean or median estimates of the curves instead of curves apt for visualization. 
 
-## RELATED MODELS
-
-Interesting would be an extension such as the basic models from the library. Specifically:
-* Virus in a Network
-* HIV (which takes into account "closed-off" spaces for some time
