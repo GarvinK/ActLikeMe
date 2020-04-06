@@ -94,7 +94,7 @@ server <- function(input, output, session) {
   NLLoadModel(model.path)
   
   observeEvent(input$start_sim, {
-    NLCommand(paste('set probability-of-contact ',toString(100-input$probability_of_contact),sep=""))
+    NLCommand(paste('set probability-of-contact ',toString(40-input$probability_of_contact),sep=""))
     
     NLCommand("setup")
     #NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
