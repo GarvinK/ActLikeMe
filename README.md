@@ -27,3 +27,10 @@ The underlying parameters have been chosen according to current COVID-19 statist
 - include additional behavioural based parameters
 - improved performance / multi-core-processing
 
+## RESSOURCES
+
+Current input parameters are based on the following sources:
+
+1 - https://smw.ch/article/doi/smw.2020.20203,
+2 - http://www.euro.who.int/__data/assets/pdf_file/0010/293689/Switzerland-HiT.pdf
+3 - https://www.epicentro.iss.it/coronavirus/bollettino/Report-COVID-2019_17_marzo-v2.pdf
