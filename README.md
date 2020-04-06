@@ -16,7 +16,7 @@ The agents are arranged in a network with five connections to the closest neighb
 
 Set the probability-of-contact variable. 
 
-## THINGS TO NOTICE
+## THINGS TO NOTE
 
 The underlying parameters have been chosen according to current COVID-19 statistics. However, this is an illustrative model only! The model aims to show how social distancing can help keeping the number of people infected (and therefore presumably the number of occupied hospital beds) within the capacity of the healthcare system. 
 
