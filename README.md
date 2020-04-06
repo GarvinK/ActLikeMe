@@ -18,7 +18,7 @@ Set the probability-of-contact variable.
 
 ## THINGS TO NOTICE
 
-There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an illustrative model WITHOUT ANY CLAIM TO CORRESPOND TO REALITY. The model aims merely to show how social distancing can help keeping the number of people infected (and therefore presumably the number of occupied hospital beds) within the capacity of the healthcare system. 
+The underlying parameters have been chosen according to current COVID-19 statistics. However, this is an illustrative model only! The model aims to show how social distancing can help keeping the number of people infected (and therefore presumably the number of occupied hospital beds) within the capacity of the healthcare system. 
 
 ## COMING UP
 
