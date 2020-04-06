@@ -74,7 +74,7 @@ ui <- fluidPage(
              plotOutput('hospital')
            ),
            img(src='https://github.githubassets.com/images/modules/open_graph/github-mark.png', width="10%", height="10%", align = "centre"),
-           HTML("<a href='https://github.com/GarvinK/Covid19'>Source Code on GitHub</a> "),
+           HTML("<a href='https://github.com/GarvinK/ActLikeMe'>Source Code on GitHub</a> "),
            br(),
            br()
     ),
