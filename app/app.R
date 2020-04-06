@@ -103,7 +103,7 @@ server <- function(input, output, session) {
     #NLCommand(paste('set avg-relationships-per-person ',toString(input$avg_relationships_per_person),sep=""))
     
     #v <- NLDoReport(10, "go", "act-immune-people")
-    v <- NLDoReport(100, "go", c("act-immune-people","act-dead-people","act-infect-people","act-hosp-people","act-required-hosp"),
+    v <- NLDoReport(10, "go", c("act-immune-people","act-dead-people","act-infect-people","act-hosp-people","act-required-hosp"),
                     as.data.frame=TRUE, df.col.names=c("act_immune_people","act_dead_people","act_infect_people","act_hosp_people","act_required_hosp "))
     
     output$act_immune_people <- renderPlot({
