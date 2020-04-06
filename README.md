@@ -20,9 +20,10 @@ Set the probability-of-contact variable.
 
 There are some heavy assumptions, DO NOT TAKE THEM FOR GRANTED. This is an illustrative model WITHOUT ANY CLAIM TO CORRESPOND TO REALITY. The model aims merely to show how social distancing can help keeping the number of people infected (and therefore presumably the number of occupied hospital beds) within the capacity of the healthcare system. 
 
-## THINGS TO TRY / EXTENDING THE MODEL
+## COMING UP
 
-- Get some more accurate realistic parameters. 
-- MonteCarlo the model many times to get parameter estimates of the curves instead of curves apt for visualisation. 
+- Improve accuracy of input-parameters. 
+- Parameter estimates using sampling based methods (MC). 
 - include additional behavioural based parameters
+- improved performance / multi-core-processing
 
