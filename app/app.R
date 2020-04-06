@@ -36,7 +36,7 @@ ui <- fluidPage(
            #              c("Keinen" = "norm",
            #                "Weniger als 3" = "unif",
            #                "Mehr als 3" = "lnorm")),
-           sliderInput("probability_of_contact", "Wie gut hälst Du Dich an BAG - Richtlinien?",
+           sliderInput("probability_of_contact", "Wie gut hältst Du Dich an BAG - Richtlinien?",
                        min = 0, max = 100, value = 50,width = "100%"
            ),
            
