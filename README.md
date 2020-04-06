@@ -4,6 +4,8 @@
 
 A multi-agent based simulation to show how social distancing affects the spread of a virus. Among other things it evaluates the evolution of infection rates, immunity and death rates. Thereby, takes into account how a potentially overwhelmed healthcare system cannot treat every patient optimally.
 
+![](actlikeme.gif)
+
 ## HOW IT WORKS
 
 The agents are arranged in a network with five connections to the closest neighbours. Initially the agents are distributed randomly, given the connection logic, this will result in a local clustering (which seems at least somewhat more realistic than to have all agents distributed randomly). The agents interact according to an adjustable probability,  which simulates how well someone acts according to the social distancing guidelines. The model still contains many random parts which are sampled from a uniform, which is NOT how reality works. The model still illustrates how social distancing can help mitigate the effects of a virus. 
