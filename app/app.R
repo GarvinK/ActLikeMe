@@ -36,8 +36,8 @@ ui <- fluidPage(
            #              c("Keinen" = "norm",
            #                "Weniger als 3" = "unif",
            #                "Mehr als 3" = "lnorm")),
-           sliderInput("probability_of_contact", "Wie gut hältst Du Dich an BAG - Richtlinien?",
-                       min = 0, max = 100, value = 50,width = "100%"
+           sliderInput("probability_of_contact", "Wie intensiv betreibst Du aktuell social distancing?",
+                       min = 0, max = 40, value = 20,width = "100%"
            ),
            
            actionButton("start_sim", "Was hätte mein Verhalten für Auswirkungen?"),
