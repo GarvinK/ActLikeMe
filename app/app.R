@@ -24,18 +24,18 @@ ui <- fluidPage(
            br(),
            br(),
            br(),
-           sliderInput("probability_of_contac3", "Anzahl private physische Kontakte der letzten 7 Tage:",
-                       min = 0, max = 20, value = 5,width = "100%"
-           ),
-           sliderInput("probability_of_contact1", "Anzahl berufliche Kontakte der letzten 7 Tage:",
-                       min = 0, max = 40, value = 20,width = "100%"
-           ),
-           
-           
-           radioButtons("dist", "Wie viel Kontakt zu Risikogruppen hattest?",
-                        c("Keinen" = "norm",
-                          "Weniger als 3" = "unif",
-                          "Mehr als 3" = "lnorm")),
+           # sliderInput("probability_of_contac3", "Anzahl private physische Kontakte der letzten 7 Tage:",
+           #             min = 0, max = 20, value = 5,width = "100%"
+           # ),
+           # sliderInput("probability_of_contact1", "Anzahl berufliche Kontakte der letzten 7 Tage:",
+           #             min = 0, max = 40, value = 20,width = "100%"
+           # ),
+           # 
+           # 
+           # radioButtons("dist", "Wie viel Kontakt zu Risikogruppen hattest?",
+           #              c("Keinen" = "norm",
+           #                "Weniger als 3" = "unif",
+           #                "Mehr als 3" = "lnorm")),
            sliderInput("probability_of_contact", "Wie gut hälst Du Dich an BAG - Richtlinien?",
                        min = 0, max = 100, value = 50,width = "100%"
            ),
@@ -72,7 +72,11 @@ ui <- fluidPage(
              condition = "input.selected_tab == 'dataset'",
              h2("So würde das Gesundheitssystem aussehen, wenn alle so handeln würden wie Du:"),
              plotOutput('hospital')
-           )
+           ),
+           img(src='https://github.githubassets.com/images/modules/open_graph/github-mark.png', width="10%", height="10%", align = "centre"),
+           HTML("<a href='https://github.com/GarvinK/Covid19'>Source Code on GitHub</a> "),
+           br(),
+           br()
     ),
     column(1)
   )
@@ -107,13 +111,15 @@ server <- function(input, output, session) {
       #plot(v$act_immune_people)
       ggplot(v, aes(x=seq(1:100))) + 
         coord_cartesian(xlim = c(0, 100), ylim = c(0, 1))+
-        geom_line(aes(y=v$act_immune_people, col="Immunität in der Bevölkerung"),lwd=2.5)+ 
-        geom_line(aes(y=v$act_infect_people, col="Infektionen"),lwd=2.5)+
-        geom_line(aes(y=v$act_dead_people, col="Todesfälle"),lwd=2.5)+
+        geom_line(aes(y=act_immune_people, col="Immunität in der Bevölkerung"),lwd=2.5)+ 
+        geom_line(aes(y=act_infect_people, col="Infektionen"),lwd=2.5)+
+        geom_line(aes(y=act_dead_people, col="Todesfälle"),lwd=2.5)+
         
         labs(y = "Anzahl der Bevölkerung in Prozent")+
         labs(x = "Tage seit Ausbruch")+
-        theme_minimal()
+        theme_minimal()+ 
+        theme(legend.position="bottom")+
+        labs(colour="")
       
     })
     
@@ -126,7 +132,9 @@ server <- function(input, output, session) {
         geom_line(aes(y=v$act_required_hosp, col="Anzahl Menschen die ins Krankenhaus müssen"),lwd=2.5)+
         theme_minimal()+
         labs(y = "Anzahl der Bevölkerung in Prozent")+
-        labs(x = "Tage seit Ausbruch")
+        labs(x = "Tage seit Ausbruch")+ 
+        theme(legend.position="bottom")+
+        labs(colour="")
       
     })
     
