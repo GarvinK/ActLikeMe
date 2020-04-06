@@ -44,6 +44,8 @@ ui <- fluidPage(
            
            br(),
            br(),
+           h3("Erfahre wie die Pandemie verliefe, wenn alle so handeln würden wie Du!"),
+           
            br(),
            br(),
            tabsetPanel(id = "selected_tab", type = "tabs", selected = "simulator",
@@ -63,14 +65,12 @@ ui <- fluidPage(
            ,
            conditionalPanel(
              condition = "input.selected_tab == 'simulator'",
-             h2("So würde der Pandemie-Verlauf aussehen, wenn alle so handeln würden wie Du:"),
              #h3(textOutput('dataset_tweets_sorted_by')),
              plotOutput('act_immune_people')
              
            ),
            conditionalPanel(
              condition = "input.selected_tab == 'dataset'",
-             h2("So würde das Gesundheitssystem aussehen, wenn alle so handeln würden wie Du:"),
              plotOutput('hospital')
            ),
            img(src='https://github.githubassets.com/images/modules/open_graph/github-mark.png', width="10%", height="10%", align = "centre"),
