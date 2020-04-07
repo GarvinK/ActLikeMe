@@ -127,6 +127,15 @@
                   </h3>
             </div>
         </div> <!-- end section-header -->
+             <div class="home-content__scroll">
+                <a href="#questions" class="scroll-link smoothscroll">
+                    <span>Scroll Down</span>
+                </a>
+            </div>
+            </section> 
+           
+
+    <section id='questions' class="s-question">
 
         <!-- end about-desc -->
 
@@ -154,28 +163,54 @@
 
                     
                     {{ start_sim }}
+
                 </div>
          <!--- END NUMBERS BY INTEGRATING SHINY OUTPUT -->
 
 
         <div class="about__line"></div>
-
+                                 <div class="home-content__scroll">
+                <a href="#infectionrates" class="scroll-link smoothscroll">
+                    <span>See Effect on Infection Rates</span>
+                </a>
+            </div>
     </section> 
     <!-- end s-about -->
 
 
     <!-- map ================================================== -->
-    <section id='services' class="s-clients">
+    <section id='infectionrates' class="s-clients">
       
         <div class="row section-header has-bottom-sep aos-init aos-animate" data-aos="fade-up">
             <div class="col-full">
                 <h2 class="subhead">{{ text_intro }}</h2> <br><br>
 {{ evolution }}  
-<br> <br> <br> 
-
+<br>
+<br> <br> 
+             
+            </div>  
+             </div>
+              <div class="home-content__scroll">
+                <br><br>
+                <a href="#hospital" class="scroll-link smoothscroll">
+                    <span style="color:#39b54a">See Implications of Domestic Health System</span>
+                </a>
             </div>
-            <br> <br> <br> <br>
+             
+            </section> 
+            
+    <section id='emptyspace' class="s-question">
+
+
+
+            <br> <br>
+                        </section> 
+
+                <section id='hospital' class="s-clients">
+        <div class="row section-header has-bottom-sep aos-init aos-animate" data-aos="fade-up">
+
                         <div class="col-full">
+                          
                 <h2 class="subhead">{{ hospitaltext }} </h2>
                  <br> 
                 <br><br>
@@ -184,7 +219,8 @@
             <br>
                             <h2 class="subhead">{{ text_repeat }}</h2>
 
-        </div>
+                    </div>
+
 
       <div class="intro-wrap"> 
       <!--{{ leaflet_map }}-->
