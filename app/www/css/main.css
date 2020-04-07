@@ -2732,7 +2732,7 @@ html.no-csstransitions .home-content__main {
 .s-clients {
     padding-top: 16.2rem;
     padding-bottom: 16.8rem;
-    background-color: #e6e6e6;
+    background-color: rgb(255, 255, 255);
     color: #757575;
     position: relative;
 }

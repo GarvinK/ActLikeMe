@@ -10,7 +10,7 @@
     <!--- basic page needs
     ================================================== -->
     <meta charset="utf-8">
-    <title>Shiny HTML Template App</title>
+    <title>Act-Like-Me - You Can Make The Difference</title>
     <meta name="description" content="">
     <meta name="author" content="">
 
@@ -92,7 +92,7 @@
                     Wondering<br>
                     if you can make<br>
                     a difference in managing  <br>
-                    the Covid-19 ciris?
+                    the Covid-19 pandemic?
                 </h1>
                 
 
@@ -151,9 +151,9 @@
         </div> 
         
                         <div class="home-content__buttons" ,align="center">
-                    <a href="#about" class="smoothscroll btn btn--stroke">
-                        TEST YOUR IMPACT
-                    </a>
+
+                    
+                    {{ start_sim }}
                 </div>
          <!--- END NUMBERS BY INTEGRATING SHINY OUTPUT -->
 
@@ -169,9 +169,21 @@
       
         <div class="row section-header has-bottom-sep aos-init aos-animate" data-aos="fade-up">
             <div class="col-full">
-                <h2 class="subhead">So tell us...how do you act?</h2>
+                <h2 class="subhead">{{ text_intro }}</h2> <br><br>
+{{ evolution }}  
+<br> <br> <br> 
 
             </div>
+            <br> <br> <br> <br>
+                        <div class="col-full">
+                <h2 class="subhead">{{ hospitaltext }} </h2>
+                 <br> 
+                <br><br>
+{{ healthsystem }}<br> <br> <br> 
+            </div>
+            <br>
+                            <h2 class="subhead">{{ text_repeat }}</h2>
+
         </div>
 
       <div class="intro-wrap"> 
@@ -188,7 +200,7 @@
     <section id="vivek" class="s-services">
       <div class="row section-header aos-init aos-animate" data-aos="fade-up">
             <div class="col-full">
-                <h3 class="subhead">Source Code</h3>
+                <h3 class="subhead"></h3>
                 <a href="https://github.com/GarvinK/ActLikeMe"><img src="images/github.png", width="40%", height="40%"></a>
             </div>
         </div>
