@@ -26,6 +26,7 @@ The underlying parameters have been chosen according to current COVID-19 statist
 - Parameter estimates using sampling based methods (MC). 
 - include additional behavioural based parameters
 - improved performance / multi-core-processing
+- New UI (DONE)
 
 ## RESSOURCES
 
