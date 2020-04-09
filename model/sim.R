@@ -1,0 +1,135 @@
+library(SimInf)
+
+
+
+actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1){ 
+  #Fixed parameter
+  #------------------------------------
+  #g equals recovery time. Set to 0.1 results in an expected value of 10 days to recover, which is 
+  #also consistent with the approx. time a covid19 patient being ansteckend
+  g = g
+  
+  #number of notes 
+  n <- n
+  public_contacts = n - personalcontacts
+  
+  beta_private = 0.7 #baseline - given you have PERSONAL contact with a infected person, 
+  # how probable is it that you get infected
+  
+  beta_public = 0.1 #given that you are in the public, like e.g. in a park 
+  
+  
+  beta_transport = 0.7 #using public transportatioin 
+  #pub_transport verzicht auf PT
+  beta_base = min(1,beta_private * (personalcontacts/(personalcontacts+public_contacts)) + 
+                    beta_public *(public_contacts/(personalcontacts+public_contacts)) + (1/(pub_transport)*beta_transport))
+  
+  #Adjustable parameter by user
+  #------------------------------------
+  #number of healthy people in the note => how big is you circule of people 
+  #you  personal meet during the last 7 days (business or private)
+  
+  offset = 2 #reducing impact of wahsing hands
+  hygiene = min(offset/washing_hands,1)
+  beta = min(1,max(0, beta_base - hygiene)) #keep beta between 0 and 1
+  
+  
+  public = 20 #amount of people you cross during a normal day in the par, food shooping
+  
+  node_members =public + personalcontacts
+  
+  i = max(1, node_members/5) #infected within node
+  s = node_members - i
+  
+  #hygiene proxies attempts of user to take care not getting infected while in contact with others
+  #1-10 , e.g. amount of times user washes hands per day
+  
+  
+  #beta equals prob that a single agent is getting infected at a specific time point. 
+  
+  
+  transitions <- c("S -> beta*S*I/(S+I+R+D) -> I + Icum", "I -> g*I -> R", "I -> I*dr -> D")
+  compartments <- c("S", "I", "Icum", "R", "D")
+  
+  #Setting up events for internal and external transfer
+  #-------------------------------------
+  
+  #defining time span in weeks
+  tspan <- seq(from = 1, to = days, by = 1)
+  
+  #Defining events for external transition
+  extrans_events <- data.frame(event = "extTrans", time = rep(tspan,
+                                                              each = node_members), node = sample(1:n,length(tspan)*node_members,replace=TRUE), dest = sample(1:n,length(tspan)*node_members,replace=TRUE), 
+                               n = 1, proportion = 0,
+                               select =1, shift = 0)
+  
+  #injecting a person with the virus
+  intra_events <- data.frame(event = "intTrans", time = 3, node = 1, dest = 0, 
+                             n = 5, proportion = 0,
+                             select =2, shift = 1)
+  #combining all events
+  events <- rbind(intra_events,extrans_events)
+  E <- matrix(c(1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1,0,1,0), nrow = 5, 
+              ncol = 3, dimnames = list(c("S", "I", "Icum", "R","D"),
+                                        c("1", "2", "3")))
+  N <- matrix(c(1, 0, 0, 0, 0), nrow = 5, ncol = 1,
+              dimnames = list(c("S", "I", "Icum", "R","D"), "1"))
+  
+  u0 <- data.frame(S = rep(s, n), I = rep(i, n), Icum = rep(0, n),R = rep(0, n),D = rep(0, n))
+  model <- mparse(transitions = transitions, compartments = compartments, 
+                  gdata = c(beta = beta, g = g,dr=0.02), u0 = u0,events = events, E = E, N = N, tspan = tspan)
+  
+  
+  #get average compartments across all nodes per for time t
+  get_avg = function(x){ 
+    sum_row = rowSums(matrix(x, nrow=length(compartments)))
+    return(sum_row/sum(sum_row))
+  }
+  
+  library(data.table)
+  
+  #MC with iter iterations
+  iter = 11
+  res = data.frame(matrix(rep(0,500),nrow=5))
+  
+  set_num_threads(1)
+  
+  counter = 1
+  for (i in 1:iter){  
+    set_num_threads(1)
+    result <- run(model = model)
+    #apply function to all columns
+    res = (res + data.frame(apply(result@U,2,get_avg)))/counter
+    counter= counter + 1
+  }
+  
+  return(transpose(res[,]))
+  
+}
+
+avgs=actlikeme()
+days=100
+iter=11
+tspan <- days
+library(ggplot2)
+ggplot(avgs, aes(x=seq(1:days))) + 
+  coord_cartesian(xlim = c(0, days), ylim = c(0, 1))+
+  geom_line(aes(y=avgs[,2], col="Infections"),lwd=2.5)+ 
+  geom_line(aes(y=avgs[,4], col="Recovered"),lwd=2.5)+
+  geom_line(aes(y=avgs[,5], col="Dead"),lwd=2.5)+
+  scale_y_continuous(labels=scales::percent)+
+  
+  labs(y = "Anzahl der Bevölkerung in Prozent")+
+  labs(x = "Tage seit Ausbruch")+
+  theme_minimal()+
+  theme(legend.position="bottom")+
+  labs(colour="")
+
+
+
+avgs=actlikeme()
+
+
+
+
+
