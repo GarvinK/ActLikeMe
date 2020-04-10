@@ -1,4 +1,5 @@
 library(SimInf)
+library(dplyr)
 
 
 
@@ -79,33 +80,44 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
   model <- mparse(transitions = transitions, compartments = compartments, 
                   gdata = c(beta = beta, g = g,dr=0.02), u0 = u0,events = events, E = E, N = N, tspan = tspan)
   
-  
-  #get average compartments across all nodes per for time t
-  get_avg = function(x){ 
-    sum_row = rowSums(matrix(x, nrow=length(compartments)))
-    return(sum_row/sum(sum_row))
-  }
-  
-  library(data.table)
+
+
   
   #MC with iter iterations
-  iter = 11
-  res = data.frame(matrix(rep(0,500),nrow=5))
+  # iter = 1
+  # res = data.frame(matrix(rep(0,500),nrow=5))
+  # 
+  # set_num_threads(1)
+  # 
+  # counter = 1
+  # for (i in 1:iter){  
+  #   set_num_threads(1)
+  #   result <- run(model = model)
+  #   #apply function to all columns
+  #   res = (res + x)/counter
+  #   counter= counter + 1
+  # }
   
   set_num_threads(1)
+  result <- run(model = model)
+  x = trajectory(result, compartments = NULL, node = NULL, as.is = FALSE)
+  x$total=x$S+x$I+x$R+x$D
+  x$S=x$S/x$total
+  x$I=x$I/x$total
+  x$R=x$R/x$total
+  x$D = x$D/x$total
+  x$checksum = x$S+x$I+x$R+x$D 
   
-  counter = 1
-  for (i in 1:iter){  
-    set_num_threads(1)
-    result <- run(model = model)
-    #apply function to all columns
-    res = (res + data.frame(apply(result@U,2,get_avg)))/counter
-    counter= counter + 1
-  }
+  S <- aggregate(x$S, by=list(Category=x$time), FUN=mean)$x
+  I <- aggregate(x$I, by=list(Category=x$time), FUN=mean)$x
+  R <- aggregate(x$R, by=list(Category=x$time), FUN=mean)$x
+  D <- aggregate(x$D, by=list(Category=x$time), FUN=mean)$x
   
-  return(transpose(res[,]))
+  
+  return(data.frame(S,I,R,D))
   
 }
+
 
 avgs=actlikeme()
 days=100
@@ -114,9 +126,10 @@ tspan <- days
 library(ggplot2)
 ggplot(avgs, aes(x=seq(1:days))) + 
   coord_cartesian(xlim = c(0, days), ylim = c(0, 1))+
-  geom_line(aes(y=avgs[,2], col="Infections"),lwd=2.5)+ 
-  geom_line(aes(y=avgs[,4], col="Recovered"),lwd=2.5)+
-  geom_line(aes(y=avgs[,5], col="Dead"),lwd=2.5)+
+  geom_line(aes(y=S, col="Healthy"),lwd=2.5)+ 
+  geom_line(aes(y=I, col="Infections"),lwd=2.5)+ 
+  geom_line(aes(y=R, col="Recovered"),lwd=2.5)+
+  geom_line(aes(y=D, col="Dead"),lwd=2.5)+
   scale_y_continuous(labels=scales::percent)+
   
   labs(y = "Anzahl der Bevölkerung in Prozent")+
@@ -126,8 +139,6 @@ ggplot(avgs, aes(x=seq(1:days))) +
   labs(colour="")
 
 
-
-avgs=actlikeme()
 
 
 
