@@ -1,7 +1,17 @@
 library(SimInf)
 library(dplyr)
 
-
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+#-----------------------------------------------------------------
+# This is a simple empidemiological model, simulating the spread of a virus 
+# across a network. Thereby it creates and simulates four different compartents
+# Survailancw (non infected), Infected, Recovered (Immune), Dead across n number of nodes
+# The output of the model is a data.frame with the relative number of people within each of the
+#compartments during t-time steps. 
+# @input: g = recovery rate
+# @ input beta_base: 
+#...TBD
 
 actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1){ 
   #Fixed parameter
