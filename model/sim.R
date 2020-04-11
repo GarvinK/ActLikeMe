@@ -32,13 +32,13 @@ actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_bas
     #number of notes 
   n <- n
 
-  beta_private = 0.7 #baseline - given you have PERSONAL contact with a infected person, 
+  beta_private = 0.1 #baseline - given you have PERSONAL contact with a infected person, 
   # how probable is it that you get infected
   
-  beta_public = 0.1 #given that you are in the public, like e.g. in a park 
+  beta_public = 0.01 #given that you are in the public, like e.g. in a park 
   
   
-  beta_transport = 0.7 #using public transportatioin 
+  beta_transport = 0.1 #using public transportatioin 
   #pub_transport verzicht auf PT
   
   public_contacts = 20 #amount of people you cross during a normal day in the par, food shooping
@@ -132,4 +132,6 @@ actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_bas
   return(data.frame(S,I,R,D,H,H_out))
   
 }
+
+#test = actlikeme(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_base=0.02,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1)
 

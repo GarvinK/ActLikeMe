@@ -36,7 +36,7 @@ RATES WOULD HAVE BEEN DEVELOPED.."})
       #plot(v$act_immune_people)
       ggplot(v, aes(x=seq(1:100))) + 
         coord_cartesian(xlim = c(0, 100), ylim = c(0, 1))+
-        geom_line(aes(y=S, col="Immunität in der Bevölkerung"),lwd=2.5)+ 
+        geom_line(aes(y=R, col="Immunität in der Bevölkerung"),lwd=2.5)+ 
         geom_line(aes(y=I, col="Infektionen"),lwd=2.5)+
         geom_line(aes(y=D, col="Todesfälle"),lwd=2.5)+
         scale_y_continuous(labels=scales::percent)+
