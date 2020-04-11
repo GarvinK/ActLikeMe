@@ -22,8 +22,7 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
   
   #number of notes 
   n <- n
-  public_contacts = n - personalcontacts
-  
+
   beta_private = 0.7 #baseline - given you have PERSONAL contact with a infected person, 
   # how probable is it that you get infected
   
@@ -32,6 +31,11 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
   
   beta_transport = 0.7 #using public transportatioin 
   #pub_transport verzicht auf PT
+  
+  public_contacts = 20 #amount of people you cross during a normal day in the par, food shooping
+  
+  node_members =public_contacts + personalcontacts
+  
   beta_base = min(1,beta_private * (personalcontacts/(personalcontacts+public_contacts)) + 
                     beta_public *(public_contacts/(personalcontacts+public_contacts)) + (1/(pub_transport)*beta_transport))
   
@@ -44,12 +48,9 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
   hygiene = min(offset/washing_hands,1)
   beta = min(1,max(0, beta_base - hygiene)) #keep beta between 0 and 1
   
+
   
-  public = 20 #amount of people you cross during a normal day in the par, food shooping
-  
-  node_members =public + personalcontacts
-  
-  i = max(1, node_members/5) #infected within node
+  i = round(max(1, node_members/5))#infected within node
   s = node_members - i
   
   #hygiene proxies attempts of user to take care not getting infected while in contact with others
