@@ -55,21 +55,21 @@ RATES WOULD HAVE BEEN DEVELOPED.."})
      output$text_repeat <- renderText({"NOW TRY TO ADJUST THE SLIDERS AND HAVE A LOOK,
     HOW HUGE THE IMPACT OF THESE MEASURES ARE."})
 
-    # output$hospital <- renderPlot({
+     output$hospital <- renderPlot({
     #   #if (is.null(v$data)) return()
     #   #plot(v$act_immune_people)
-    #   ggplot(v, aes(x=seq(1:50))) + 
-    #     coord_cartesian(xlim = c(0, 50), ylim = c(0, 0.07))+
-    #     geom_line(aes(y=v$act_hosp_people, col="Anzahl Menschen die Platz in einem Krankenhaus haben"),lwd=2.5)+
-    #     geom_line(aes(y=v$act_required_hosp, col="Anzahl Menschen die ins Krankenhaus müssen"),lwd=2.5)+
-    #     labs(y = "Anzahl der Bevölkerung in Prozent")+
-    #     labs(x = "Tage seit Ausbruch")+ 
-    #     theme_minimal()+
-    #     theme(legend.position="bottom")+
-    #     scale_y_continuous(labels=scales::percent)+
-    #      labs(colour="")
-    #   
-    # })
+     ggplot(v, aes(x=seq(1:100))) +
+       coord_cartesian(xlim = c(0, 100), ylim = c(0, 0.3))+
+       geom_line(aes(y=H, col="People requiring Hospital Beds"),lwd=2.5)+
+       geom_line(aes(y=rep(0.05,100), col="Hospital Capacity"),lwd=1.5)+
+       labs(y = "Anzahl der Bevölkerung in Prozent")+
+       labs(x = "Tage seit Ausbruch")+
+       theme_minimal()+
+       theme(legend.position="bottom")+
+       scale_y_continuous(labels=scales::percent)+
+       labs(colour="")
+       
+     })
  
 
    

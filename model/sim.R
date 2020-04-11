@@ -13,14 +13,23 @@ library(dplyr)
 # @ input beta_base: 
 #...TBD
 
-actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1){ 
+actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_base=0.7,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1){ 
   #Fixed parameter
   #------------------------------------
   #g equals recovery time. Set to 0.1 results in an expected value of 10 days to recover, which is 
   #also consistent with the approx. time a covid19 patient being ansteckend
   g = g
   
-  #number of notes 
+  #  #proportion of sick patients going into hospital (per day!!)
+
+  h = h
+  
+  #probability of getting out of hospital
+  hout=hout
+
+  #probabbility of dying
+  dr=dr
+    #number of notes 
   n <- n
 
   beta_private = 0.7 #baseline - given you have PERSONAL contact with a infected person, 
@@ -60,8 +69,8 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
   #beta equals prob that a single agent is getting infected at a specific time point. 
   
   
-  transitions <- c("S -> beta*S*I/(S+I+R+D) -> I + Icum", "I -> g*I -> R", "I -> I*dr -> D")
-  compartments <- c("S", "I", "Icum", "R", "D")
+  transitions <- c("S -> beta*S*I/(S+I+R+D) -> I + Icum", "I -> g*I -> R", "I -> h*I -> H","H -> hout*H ->R","H -> H*dr -> D")
+  compartments <- c("S", "I", "Icum", "R", "D", "H","H_out")
   
   #Setting up events for internal and external transfer
   #-------------------------------------
@@ -81,15 +90,15 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
                              select =2, shift = 1)
   #combining all events
   events <- rbind(intra_events,extrans_events)
-  E <- matrix(c(1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1,0,1,0), nrow = 5, 
-              ncol = 3, dimnames = list(c("S", "I", "Icum", "R","D"),
+  E <- matrix(c(1, 1, 0, 1, 0, 0,0,1, 0, 0, 0, 0,0,0, 0, 1,0,1,0,0,0), nrow = 7, 
+              ncol = 3, dimnames = list(c("S", "I", "Icum", "R","D","H","H_out"),
                                         c("1", "2", "3")))
-  N <- matrix(c(1, 0, 0, 0, 0), nrow = 5, ncol = 1,
-              dimnames = list(c("S", "I", "Icum", "R","D"), "1"))
+  N <- matrix(c(1, 0, 0, 0, 0,0,0), nrow = 7, ncol = 1,
+              dimnames = list(c("S", "I", "Icum", "R","D","H","H_out"), "1"))
   
-  u0 <- data.frame(S = rep(s, n), I = rep(i, n), Icum = rep(0, n),R = rep(0, n),D = rep(0, n))
+  u0 <- data.frame(S = rep(s, n), I = rep(i, n), Icum = rep(0, n),R = rep(0, n),D = rep(0, n),H=rep(0, n),H_out=rep(0, n))
   model <- mparse(transitions = transitions, compartments = compartments, 
-                  gdata = c(beta = beta, g = g,dr=0.02), u0 = u0,events = events, E = E, N = N, tspan = tspan)
+                  gdata = c(beta = beta, g = g,dr=dr, h=h, hout=hout), u0 = u0,events = events, E = E, N = N, tspan = tspan)
   
 
 
@@ -112,46 +121,15 @@ actlikeme = function(n=1000,g=0.1,beta_base=0.7,personalcontacts=5,washing_hands
   set_num_threads(1)
   result <- run(model = model)
   x = trajectory(result, compartments = NULL, node = NULL, as.is = FALSE)
-  x$total=x$S+x$I+x$R+x$D
-  x$S=x$S/x$total
-  x$I=x$I/x$total
-  x$R=x$R/x$total
-  x$D = x$D/x$total
-  x$checksum = x$S+x$I+x$R+x$D 
-  
-  S <- aggregate(x$S, by=list(Category=x$time), FUN=mean)$x
-  I <- aggregate(x$I, by=list(Category=x$time), FUN=mean)$x
-  R <- aggregate(x$R, by=list(Category=x$time), FUN=mean)$x
-  D <- aggregate(x$D, by=list(Category=x$time), FUN=mean)$x
-  
-  
-  return(data.frame(S,I,R,D))
+   total <- node_members*n #total numbber in network
+  S <- aggregate(x$S, by=list(Category=x$time), FUN=sum)$x/total
+  I <- aggregate(x$I, by=list(Category=x$time), FUN=sum)$x/total
+  R <- aggregate(x$R, by=list(Category=x$time), FUN=sum)$x/total
+  D <- aggregate(x$D, by=list(Category=x$time), FUN=sum)$x/total
+  H <- aggregate(x$H, by=list(Category=x$time), FUN=sum)$x/total
+  H_out <- aggregate(x$H_out, by=list(Category=x$time), FUN=sum)$x/total
+
+  return(data.frame(S,I,R,D,H,H_out))
   
 }
-
-
-avgs=actlikeme()
-days=100
-iter=11
-tspan <- days
-library(ggplot2)
-ggplot(avgs, aes(x=seq(1:days))) + 
-  coord_cartesian(xlim = c(0, days), ylim = c(0, 1))+
-  geom_line(aes(y=S, col="Healthy"),lwd=2.5)+ 
-  geom_line(aes(y=I, col="Infections"),lwd=2.5)+ 
-  geom_line(aes(y=R, col="Recovered"),lwd=2.5)+
-  geom_line(aes(y=D, col="Dead"),lwd=2.5)+
-  scale_y_continuous(labels=scales::percent)+
-  
-  labs(y = "Anzahl der Bevölkerung in Prozent")+
-  labs(x = "Tage seit Ausbruch")+
-  theme_minimal()+
-  theme(legend.position="bottom")+
-  labs(colour="")
-
-
-
-
-
-
 
