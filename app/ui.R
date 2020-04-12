@@ -13,6 +13,7 @@ ui = shiny::htmlTemplate(
 
 no_contacts= sliderInput("no_contacts", "",min = 0, max = 40, value = 20,width = "100%"),
 wash_hand= sliderInput("wash_hand", "",min = 0, max = 10, value = 1,width = "100%"),
+public_transport= sliderInput("public_transport", "",min = 0, max = 10, value = 1,width = "100%"),
 
 evolution = plotOutput('act_immune_people'),
 healthsystem = plotOutput('hospital'),
