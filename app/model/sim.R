@@ -6,18 +6,22 @@ library(dplyr)
 #-----------------------------------------------------------------
 # This is a simple empidemiological model, simulating the spread of a virus 
 # across a network. Thereby it creates and simulates four different compartents
-# Survailancw (non infected), Infected, Recovered (Immune), Dead across n number of nodes
+# susceptible (non infected), Infected, Recovered (Immune), Dead across n number of nodes
 # The output of the model is a data.frame with the relative number of people within each of the
 #compartments during t-time steps. 
 # @input: g = recovery rate
 # @ input beta_base: 
 #...TBD
+# hospitalisation rate approximated from https://www.ecdc.europa.eu/en/current-risk-assessment-novel-coronavirus-situation 
 
-actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_base=0.7,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1){ 
+actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
+                     beds=100,hout=0.05,beta_base=0.7,
+                     personalcontacts=5,washing_hands=5,
+                     offset=2,days=100,pub_transport=1){ 
   #Fixed parameter
   #------------------------------------
   #g equals recovery time. Set to 0.1 results in an expected value of 10 days to recover, which is 
-  #also consistent with the approx. time a covid19 patient being ansteckend
+  #also consistent with the approx. time a covid19 patient being infectious 
   g = g
   
   #  #proportion of sick patients going into hospital (per day!!)
@@ -29,7 +33,7 @@ actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_bas
 
   #probabbility of dying
   dr=dr
-    #number of notes 
+  #number of notes 
   n <- n
 
   beta_private = 0.1 #baseline - given you have PERSONAL contact with a infected person, 
@@ -40,26 +44,31 @@ actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_bas
   
   beta_transport = 0.1 #using public transportatioin 
   #pub_transport verzicht auf PT
+  if (pub_transport > 0) {
+    trans_beta = beta_transport
+  } else {
+    trans_beta = 0
+  }
+  
+#ToDo: -> fix transporation because it is always inf
   
   public_contacts = 20 #amount of people you cross during a normal day in the par, food shooping
   
-  node_members =public_contacts + personalcontacts
+  node_members = public_contacts + personalcontacts
   
   beta_base = min(1,beta_private * (personalcontacts/(personalcontacts+public_contacts)) + 
-                    beta_public *(public_contacts/(personalcontacts+public_contacts)) + (1/(pub_transport)*beta_transport))
+                    beta_public *(public_contacts/(personalcontacts+public_contacts)) + trans_beta)
   
   #Adjustable parameter by user
   #------------------------------------
-  #number of healthy people in the note => how big is you circule of people 
-  #you  personal meet during the last 7 days (business or private)
+  #number of healthy people in the node => how big is you circle of people 
+  # you met in persone during the last 7 days (business or private)
   
   offset = 2 #reducing impact of wahsing hands
   hygiene = min(offset/washing_hands,1)
   beta = min(1,max(0, beta_base - hygiene)) #keep beta between 0 and 1
   
-
-  
-  i = round(max(1, node_members/5))#infected within node
+  i = round(max(1, node_members/5)) #infected within node
   s = node_members - i
   
   #hygiene proxies attempts of user to take care not getting infected while in contact with others
@@ -75,12 +84,16 @@ actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_bas
   #Setting up events for internal and external transfer
   #-------------------------------------
   
-  #defining time span in weeks
+  #defining time span in days
   tspan <- seq(from = 1, to = days, by = 1)
   
   #Defining events for external transition
+  
   extrans_events <- data.frame(event = "extTrans", time = rep(tspan,
-                                                              each = node_members), node = sample(1:n,length(tspan)*node_members,replace=TRUE), dest = sample(1:n,length(tspan)*node_members,replace=TRUE), 
+                                                              each = node_members),
+                               node = sample(1:n,length(tspan)*node_members,
+                                             replace=TRUE),
+                               dest = sample(1:n,length(tspan)*node_members,replace=TRUE),
                                n = 1, proportion = 0,
                                select =1, shift = 0)
   
