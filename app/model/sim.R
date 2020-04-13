@@ -17,7 +17,8 @@ library(dplyr)
 actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
                      beds=100,hout=0.05,beta_base=0.7,
                      personalcontacts=5,washing_hands=5,
-                     offset=2,days=100,pub_transport=1){ 
+                     offset=2,days=100,pub_transport=1,
+                     node_interaction=4, local_connections_only=TRUE){ 
   #Fixed parameter
   #------------------------------------
   #g equals recovery time. Set to 0.1 results in an expected value of 10 days to recover, which is 
@@ -96,6 +97,22 @@ actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
                                dest = sample(1:n,length(tspan)*node_members,replace=TRUE),
                                n = 1, proportion = 0,
                                select =1, shift = 0)
+  
+  # If local conntections is true, only make connections to the 
+  # numerically closest nodes
+  if (local_connections_only == TRUE) {
+    # only connect to closes nodenumbers (not really clustering but better than nothing)
+    set.seed(42)
+    dir_sample = sample(c(-1,1), length(tspan)*node_members, replace = T)
+    change_sample = sample(1:as.integer(node_interaction/2), length(tspan)*node_members, replace = T)
+    
+    # Create node-difference
+    nodes_sample = dir_sample * change_sample
+    t = extrans_events$node + nodes_sample
+    t_1 <- ifelse(t <= 0, max(extrans_events$node) + t, t)
+    t_2 <- ifelse( t_1 > max(extrans_events$node), t_1 - max(extrans_events$node), t_1)
+    extrans_events$dest = t_2
+  }
   
   #injecting a person with the virus
   intra_events <- data.frame(event = "intTrans", time = 3, node = 1, dest = 0, 
