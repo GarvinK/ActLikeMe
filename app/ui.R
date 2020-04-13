@@ -18,7 +18,7 @@ public_transport= sliderInput("public_transport", "",min = 0, max = 10, value = 
 evolution = plotOutput('act_immune_people'),
 healthsystem = plotOutput('hospital'),
 start_sim = actionButton("start_sim", "Start Simulator!"),
-#hospitaltext = textOutput("hospital_test"),
+hospitaltext = textOutput("hospital_test"),
 text_intro=textOutput("text_intro"),
 text_repeat=textOutput("text_repeat"),
 

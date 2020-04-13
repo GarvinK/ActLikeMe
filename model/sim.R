@@ -133,5 +133,5 @@ actlikeme = function(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_bas
   
 }
 
-#test = actlikeme(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_base=0.02,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1)
+test = actlikeme(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_base=0.02,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1)
 
