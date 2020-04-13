@@ -25,4 +25,4 @@ library(magrittr)
 library(RNetLogo)
 library(ggplot2)
 
-source("/srv/shiny-server/Covid19_test/model/sim.R")
+source("model/sim.R")
