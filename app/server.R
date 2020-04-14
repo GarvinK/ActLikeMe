@@ -28,7 +28,7 @@ server <- function(input, output,session) {
   observeEvent(input$start_sim, {
     
     #v <- NLDoReport(10, "go", "act-immune-people")
-    v <- actlikeme(personalcontacts =input$no_contacts)
+    v <- actlikeme(personalcontacts =input$no_contacts,washing_hands=input$wash_hand, pub_transport=input$public_transport)
     output$text_intro <- renderText({paste("LET'S HAVE A LOOK AT HOW THE INFECTION
 RATES WOULD HAVE BEEN DEVELOPED: If everyone acts in the same manner you do, the peak of the infection rate will be at day ",which.max(v$I),".",
                                            " Within the first ",length(v$I)," days, ",round(v$R[length(v$R)]*100), "% of the society might be immune

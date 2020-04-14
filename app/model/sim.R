@@ -17,8 +17,8 @@ library(dplyr)
 actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
                      beds=100,hout=0.05,beta_base=0.7,
                      personalcontacts=5,washing_hands=5,
-                     offset=2,days=100,pub_transport=1,
-                     node_interaction=4, local_connections_only=TRUE){ 
+                     offset=2,days=100,pub_transport=FALSE,
+                     node_interaction=4, local_connections_only=FALSE){ 
   #Fixed parameter
   #------------------------------------
   #g equals recovery time. Set to 0.1 results in an expected value of 10 days to recover, which is 
@@ -37,15 +37,15 @@ actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
   #number of notes 
   n <- n
 
-  beta_private = 0.1 #baseline - given you have PERSONAL contact with a infected person, 
+  beta_private = 0.7 #baseline - given you have PERSONAL contact with a infected person, 
   # how probable is it that you get infected
   
-  beta_public = 0.01 #given that you are in the public, like e.g. in a park 
+  beta_public = 0.05 #given that you are in the public, like e.g. in a park 
   
   
-  beta_transport = 0.1 #using public transportatioin 
+  beta_transport = 0.2 #using public transportatioin 
   #pub_transport verzicht auf PT
-  if (pub_transport > 0) {
+  if (pub_transport ==1) {
     trans_beta = beta_transport
   } else {
     trans_beta = 0
@@ -65,8 +65,8 @@ actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
   #number of healthy people in the node => how big is you circle of people 
   # you met in persone during the last 7 days (business or private)
   
-  offset = 2 #reducing impact of wahsing hands
-  hygiene = min(offset/washing_hands,1)
+  offset = 2 #reducing impact/10 of wahsing hands
+  hygiene = min(washing_hands/10,1)
   beta = min(1,max(0, beta_base - hygiene)) #keep beta between 0 and 1
   
   i = round(max(1, node_members/5)) #infected within node
@@ -162,6 +162,3 @@ actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
   return(data.frame(S,I,R,D,H,H_out))
   
 }
-
-#test = actlikeme(n=1000,g=0.1,h=0.05,dr = 0.005, beds=100,hout=0.05,beta_base=0.02,personalcontacts=5,washing_hands=5,offset=2,days=100,pub_transport=1)
-
