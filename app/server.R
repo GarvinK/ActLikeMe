@@ -28,9 +28,10 @@ server <- function(input, output,session) {
   observeEvent(input$start_sim, {
     
     #v <- NLDoReport(10, "go", "act-immune-people")
-    v <- actlikeme(personalcontacts =input$no_contacts,washing_hands=input$wash_hand, pub_transport=input$public_transport)
+    v <- actlikeme(personalcontacts =input$no_contacts,washing_hands=input$wash_hand, pub_transport=input$public_transport,mask=input$mask,
+                   social_distancing = input$social_distancing)
     output$text_intro <- renderText({paste("LET'S HAVE A LOOK AT HOW THE INFECTION
-RATES WOULD HAVE BEEN DEVELOPED: If everyone acts in the same manner you do, the peak of the infection rate will be at day ",which.max(v$I),".",
+RATES WOULD HAVE BEEN DEVELOPED:",
                                            " Within the first ",length(v$I)," days, ",round(v$R[length(v$R)]*100), "% of the society might be immune
                                            against the virus.")})
     output$act_immune_people <- renderPlot({
@@ -40,13 +41,13 @@ RATES WOULD HAVE BEEN DEVELOPED: If everyone acts in the same manner you do, the
         coord_cartesian(xlim = c(0, 100), ylim = c(0, 1))+
         geom_line(aes(y=R, col="Immunity"),lwd=2.5)+ 
         geom_line(aes(y=I, col="Infections"),lwd=2.5)+
-        geom_line(aes(y=D, col="Deaths"),lwd=2.5)+
+        #geom_line(aes(y=D, col="Deaths"),lwd=2.5)+
         scale_y_continuous(labels=scales::percent)+
         
-        labs(y = "Anzahl der Bevölkerung in Prozent")+
-        labs(x = "Tage seit Ausbruch")+
+        labs(y = "% of Population")+
+        labs(x = "Duration of the Pandemic")+
         theme_minimal()+
-        theme(legend.position="bottom")+
+        theme(legend.position="bottom",axis.text.x = element_blank())+
         labs(colour="")
       
     })
@@ -67,16 +68,17 @@ RATES WOULD HAVE BEEN DEVELOPED: If everyone acts in the same manner you do, the
      output$hospital <- renderPlot({
     #   #if (is.null(v$data)) return()
     #   #plot(v$act_immune_people)
-     ggplot(v, aes(x=seq(1:100))) +
-       coord_cartesian(xlim = c(0, 100), ylim = c(0, 0.3))+
-       geom_line(aes(y=H, col="People requiring Hospital Beds"),lwd=2.5)+
-       geom_line(aes(y=rep(0.05,100), col="Hospital Capacity"),lwd=1.5)+
-       labs(y = "Anzahl der Bevölkerung in Prozent")+
-       labs(x = "Tage seit Ausbruch")+
-       theme_minimal()+
-       theme(legend.position="bottom")+
-       scale_y_continuous(labels=scales::percent)+
-       labs(colour="")
+       ggplot(v, aes(x=seq(1:100))) +
+         coord_cartesian(xlim = c(0, 100), ylim = c(0, 0.3))+
+         geom_line(aes(y=H, col="People requiring Hospital Beds"),lwd=2.5)+
+         geom_line(aes(y=rep(0.05,100), col="Hospital Capacity"),lwd=1.5)+
+         labs(y = "% of Population")+
+         labs(x = "Duration of the Pandemic")+
+         theme_minimal()+
+         theme(legend.position="bottom",axis.text.x = element_blank())+
+         
+         scale_y_continuous(labels=scales::percent)+
+         labs(colour="")
        
      })
  

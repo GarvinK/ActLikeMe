@@ -17,7 +17,10 @@ public_transport= radioButtons("public_transport", label = h3(""),
                                choices = list("Yes" = 1, "No" = 2), 
                                selected = 2),
 
-
+mask= radioButtons("mask", label = h3(""),
+                               choices = list("Yes" = 1, "No" = 2), 
+                               selected = 2),
+social_distancing= sliderInput("social_distancing", "",min = 0, max = 10, value = 5,width = "100%"),
 evolution = plotOutput('act_immune_people'),
 healthsystem = plotOutput('hospital'),
 start_sim = actionButton("start_sim", "Start Simulator!"),

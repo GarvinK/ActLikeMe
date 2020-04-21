@@ -17,8 +17,8 @@ library(dplyr)
 actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
                      beds=100,hout=0.05,beta_base=0.7,
                      personalcontacts=5,washing_hands=5,
-                     offset=2,days=100,pub_transport=FALSE,
-                     node_interaction=4, local_connections_only=FALSE){ 
+                     offset=2,days=100,pub_transport=0,
+                     node_interaction=4, local_connections_only=FALSE,mask=0,social_distancing=2){ 
   #Fixed parameter
   #------------------------------------
   #g equals recovery time. Set to 0.1 results in an expected value of 10 days to recover, which is 
@@ -37,18 +37,25 @@ actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
   #number of notes 
   n <- n
 
-  beta_private = 0.7 #baseline - given you have PERSONAL contact with a infected person, 
+  beta_private = 0.9 #baseline - given you have PERSONAL contact with a infected person, 
   # how probable is it that you get infected
   
   beta_public = 0.05 #given that you are in the public, like e.g. in a park 
   
   
-  beta_transport = 0.2 #using public transportatioin 
+  beta_transport = 0.4 #using public transportatioin 
   #pub_transport verzicht auf PT
   if (pub_transport ==1) {
     trans_beta = beta_transport
   } else {
     trans_beta = 0
+  }
+  
+  #wearing a mask
+  if (mask ==1) {
+    mask_beta = 0.25
+  } else {
+    mask_beta = 0
   }
   
 #ToDo: -> fix transporation because it is always inf
@@ -66,10 +73,11 @@ actlikeme = function(n=1000,g=0.1,h=0.032,dr = 0.005,
   # you met in persone during the last 7 days (business or private)
   
   offset = 2 #reducing impact/10 of wahsing hands
-  hygiene = min(washing_hands/10,1)
-  beta = min(1,max(0, beta_base - hygiene)) #keep beta between 0 and 1
+  hygiene = max(washing_hands/70,0) + mask_beta
+  social_distancing_ = social_distancing/30
+  beta = min(1,max(0, beta_base - hygiene-social_distancing_)) #keep beta between 0 and 1
   
-  i = round(max(1, node_members/5)) #infected within node
+  i = 1#round(max(1, node_members/5)) #infected within node
   s = node_members - i
   
   #hygiene proxies attempts of user to take care not getting infected while in contact with others
