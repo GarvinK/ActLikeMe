@@ -5,8 +5,8 @@ account: algotech73
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2107100
-bundleId: 3010977
+bundleId: 3044908
 url: https://algotech73.shinyapps.io/Act-Like-Me/
-when: 1586859829.11882
+when: 1587484281.27686
 asMultiple: FALSE
 asStatic: FALSE

@@ -32,8 +32,8 @@ server <- function(input, output,session) {
                    social_distancing = input$social_distancing)
     output$text_intro <- renderText({paste("LET'S HAVE A LOOK AT HOW THE INFECTION
 RATES WOULD HAVE BEEN DEVELOPED:",
-                                           " Within the first ",length(v$I)," days, ",round(v$R[length(v$R)]*100), "% of the society might be immune
-                                           against the virus.")})
+                                           " Within the first ",length(v$I)," days, ",round(v$R[length(v$R)]*100), "% of the society might have contracted 
+                                           the virus.")})
     output$act_immune_people <- renderPlot({
       #if (is.null(v$data)) return()
       #plot(v$act_immune_people)
