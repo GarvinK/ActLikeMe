@@ -1,0 +1,12 @@
+name: ActLikeMe
+title: ActLikeMe
+username:
+account: algotech73
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2107069
+bundleId: 3006165
+url: https://algotech73.shinyapps.io/ActLikeMe/
+when: 1586770778.5242
+asMultiple: FALSE
+asStatic: FALSE
