@@ -31,7 +31,7 @@ server <- function(input, output,session) {
     v <- actlikeme(personalcontacts =input$no_contacts,washing_hands=input$wash_hand, pub_transport=input$public_transport,mask=input$mask,
                    social_distancing = input$social_distancing)
     output$text_intro <- renderText({paste("LET'S HAVE A LOOK AT HOW THE INFECTION
-RATES WOULD HAVE BEEN DEVELOPED:",
+RATES WOULD HAVE DEVELOPED:",
                                            " Within the first ",length(v$I)," days, ",round(v$R[length(v$R)]*100), "% of the society might have contracted 
                                            the virus.")})
     output$act_immune_people <- renderPlot({
@@ -62,8 +62,7 @@ RATES WOULD HAVE BEEN DEVELOPED:",
 
  #   hosp_undercapacity= round(mean(v$act_hosp_people/v$act_required_hosp,na.rm = TRUE)*100, digit=2)
      output$hospital_test <- renderText({overcap})
-     output$text_repeat <- renderText({"NOW TRY TO ADJUST THE SLIDERS AND HAVE A LOOK,
-    HOW HUGE THE IMPACT OF THESE MEASURES ARE."})
+     output$text_repeat <- renderText({"NOW TRY TO ADJUST THE SLIDERS AND HAVE A LOOK AT THE EFFECTS OF THESE MEASURES."})
     
      output$hospital <- renderPlot({
     #   #if (is.null(v$data)) return()
@@ -76,10 +75,10 @@ RATES WOULD HAVE BEEN DEVELOPED:",
          labs(x = "Duration of the Pandemic")+
          theme_minimal()+
          theme(legend.position="bottom",axis.text.x = element_blank())+
-         
+
          scale_y_continuous(labels=scales::percent)+
          labs(colour="")
-       
+
      })
  
 
