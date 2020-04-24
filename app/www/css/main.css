@@ -2217,13 +2217,37 @@ html.no-csstransitions .home-content__main {
 }
 
 /* ===================================================================
+ * # tellus
+ *
+ * ------------------------------------------------------------------- */
+.s-tellus {
+    padding-top: 16.2rem;
+    padding-bottom: 9rem;
+    background-color: #427098;
+    color: #010507;
+    position: relative;
+}
+
+.s-tellus .section-header.has-bottom-sep::before {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.tellus-desc {
+    font-size: 2.4rem;
+    line-height: 1.75;
+    text-align: center;
+    max-width: 1024px;
+}
+
+/* ===================================================================
  * # questions
  *
  * ------------------------------------------------------------------- */
 .s-question {
     padding-top: 16.2rem;
     padding-bottom: 9rem;
-    background-color: #7391ab;
+    background-color: #7d8d98;
+
     color: #010507;
     position: relative;
 }
