@@ -52,6 +52,20 @@ RATES WOULD HAVE DEVELOPED:",
       
     })
     
+    if (input$wash_hand < 5) {
+      param_handwash = 'But you could try even more, eg. wash your hands more often :) '
+    } else {
+      param_handwash = ''
+    }
+    if (round(v$R[length(v$R)] < 0.5)) {
+      param_curveflatter = 'The curve is flattend, due to your good behavior you actively helped flatten the curve'
+    } else {
+      param_curveflatter = 'Looks like the curve has quite a steep slope, there might be more you could do'
+    }
+      
+    output$text_advice <- renderText({paste(param_curveflatter,
+                                            param_handwash)})
+    
     if (length(which(v$H>0.05))>0) {
       overcap = paste("During the first ",length(v$H),"days",
                       "the domestic health system will suffer from undercapacity during ",length(which(v$H>0.05)),"days.")
